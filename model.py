@@ -91,6 +91,11 @@ class TimedeltaEmbeddingModel(nn.Module):
         embed = self.timedelta_embedding(timedelta)
         return embed
     
+
+class CityEmbedding(nn.Module):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+    
 # sum up the embedding to form the embedding layer
 
 class EmbeddingLayer(nn.Module):
