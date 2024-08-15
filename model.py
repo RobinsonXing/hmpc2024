@@ -4,7 +4,7 @@
 import torch
 from torch import nn
 
-# embedding model of day, timeslot, x, and y 
+# embedding of day, timeslot, x, and y 
 
 class DayEmbeddingModel(nn.Module):
     '''
@@ -91,7 +91,7 @@ class TimedeltaEmbeddingModel(nn.Module):
         embed = self.timedelta_embedding(timedelta)
         return embed
     
-# sum up the embedding to form a embedding layer
+# sum up the embedding to form the embedding layer
 
 class EmbeddingLayer(nn.Module):
     def __init__(self, embed_size):
@@ -170,3 +170,6 @@ class LPBERT(nn.Module):
 
         output = self.ffn_layer(transformer_encoder_output)
         return output
+
+
+
