@@ -7,10 +7,11 @@ import torch
 from torch.utils.data import Dataset
 
 
-# 预训练数据集
+
+# 剔除待预测用户后作为预训练数据集
 
 class HuMobDatasetPreTrain(Dataset):
-    """剔除待预测用户后作为预训练集"""
+    """预训练集"""
     def __init__(self, path_arr, cities):
 
         if len(path_arr) != len(cities):
@@ -32,7 +33,7 @@ class HuMobDatasetPreTrain(Dataset):
             traj_df = pd.read_csv(path, compression='gzip')
             city_code = self.get_city_code(cities[i])
 
-            # 剔除城市BCD的待预测用户（每个城市最后3000用户的61-75天，空间坐标被mask为(999,999)）
+            # 剔除城市BCD的待预测用户（每个城市最后3000用户的61-75天为待预测点，空间坐标被mask为(999,999)）
             if city_code != 0:
                 traj_df = traj_df[traj_df['uid'] < len(pd.unique(traj_df['uid'])) - 3000]
 
@@ -53,7 +54,8 @@ class HuMobDatasetPreTrain(Dataset):
                 d_unique = np.unique(d)
                 if len(d_unique[(d_unique >= np.min(d_unique)) & (d_unique <= np.max(d_unique) - 14)]) == 0:
                     continue
-                mask_d_start = np.random.choice(d_unique[(d_unique >= np.min(d_unique)) & (d_unique <= np.max(d_unique) - 14)])
+                mask_d_start = np.random.choice(d_unique[(d_unique >= np.min(d_unique)) & 
+                                                         (d_unique <= np.max(d_unique) - 14)])
                 mask_d_end = mask_d_start + 14
                 need_mask_idx = np.where((d >= mask_d_start) & (d <= mask_d_end))
                 input_x[need_mask_idx] = 201
@@ -64,7 +66,7 @@ class HuMobDatasetPreTrain(Dataset):
                 self.t_array.append(t + 1)  # 1-48; 0:<pad>
                 self.input_x_array.append(input_x)  # 1-200; 0:<pad>; 201:<mask>
                 self.input_y_array.append(input_y)  # 1-200; 0:<pad>; 201:<mask>
-                self.time_delta_array.append(time_delta)
+                self.time_delta_array.append(time_delta)    # 0-47; 0:<pad>
                 self.label_x_array.append(label_x - 1)  # 0-199
                 self.label_y_array.append(label_y - 1)  # 0-199
                 self.len_array.append(len(d))   # 每个uid分组（即每条用户轨迹）的长度
@@ -108,10 +110,10 @@ class HuMobDatasetPreTrain(Dataset):
 
 
 
-
+# 剔除待预测点后作为微调训练数据集
 
 class humobDatasetFT(Dataset):
-    """剔除待预测点后作为微调训练集"""
+    """微调训练集"""
     def __init__(self, path, city):
 
         # 初始化
@@ -146,7 +148,8 @@ class humobDatasetFT(Dataset):
             d_unique = np.unique(d)
             if len(d_unique[(d_unique >= np.min(d_unique)) & (d_unique <= np.max(d_unique) - 14)]) == 0:
                 continue
-            mask_d_start = np.random.choice(d_unique[(d_unique >= np.min(d_unique)) & (d_unique <= np.max(d_unique) - 14)])
+            mask_d_start = np.random.choice(d_unique[(d_unique >= np.min(d_unique)) & 
+                                                     (d_unique <= np.max(d_unique) - 14)])
             mask_d_end = mask_d_start + 14
             need_mask_idx = np.where((d >= mask_d_start) & (d <= mask_d_end))
             input_x[need_mask_idx] = 201
@@ -201,10 +204,10 @@ class humobDatasetFT(Dataset):
 
 
 
-
+# 待预测用户作为测试集
 
 class HumobDatasetVal(Dataset):
-    """待预测用户作为测试集"""
+    """测试集"""
     def __init__(self, path, city):
         
         # 初始化
