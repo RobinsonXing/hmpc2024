@@ -45,7 +45,7 @@ class HuMobDatasetPreTrain(Dataset):
             time_delta[time_delta > 47] = 47
             label_x = traj['x'].to_numpy()
             label_y = traj['y'].to_numpy()
-            city = np.numpy([city_code] * len(d))
+            city = np.array([city_code] * len(d))
 
             # 训练时，对每个uid分组随机mask掉长度为15天的连续序列
             d_unique = np.unique(d)
