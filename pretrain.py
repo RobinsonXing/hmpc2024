@@ -61,7 +61,7 @@ def collate_fn(batch):
         'time_delta': time_delta_padded,
         'label_x': label_x_padded,
         'label_y': label_y_padded,
-        'len': len_tensor
+        'len': len_tensor,
         'city': city_tensor
     }
 
