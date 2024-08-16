@@ -19,7 +19,7 @@ class HuMobDatasetPreTrain(Dataset):
         self.t_array = []
         self.input_x_array = []
         self.input_y_array = []
-        self.time_delta = []
+        self.time_delta_array = []
         self.label_x_array = []
         self.label_y_array = []
         self.len_array = []
