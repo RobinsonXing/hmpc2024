@@ -138,7 +138,7 @@ def pretrain(args):
             optimizer.step()
             optimizer.zero_grad()
 
-            step = epoch_id * len(task1_dataloader_train) + batch_id
+            step = epoch_id * len(dataloader_pretrain) + batch_id
             writer.add_scalar('loss', loss.detach().item(), step)
         scheduler.step()
 
