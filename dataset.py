@@ -12,10 +12,7 @@ from torch.utils.data import Dataset
 
 class HuMobDatasetPreTrain(Dataset):
     """预训练集"""
-    def __init__(self, path_arr, cities):
-
-        if len([path_arr]) != len([cities]):
-            raise ValueError('The parameter cities is NOT correct')
+    def __init__(self, path):
 
         # 初始化
         self.d_array = []
@@ -29,53 +26,52 @@ class HuMobDatasetPreTrain(Dataset):
         self.city_array = []
         
         # 读取数据
-        for i, path in enumerate(path_arr):
-            traj_df = pd.read_csv(path, compression='gzip')
-            city_code = self.get_city_code(cities[i])
+        traj_df = pd.read_csv(path, compression='gzip')
+        city_code = self.get_city_code(city)
 
-            # 剔除城市BCD的待预测用户（每个城市最后3000用户的61-75天为待预测点，空间坐标被mask为(999,999)）
-            if city_code != 0:
-                traj_df = traj_df[traj_df['uid'] < len(pd.unique(traj_df['uid'])) - 3000]
+        # 剔除城市BCD的待预测用户（每个城市最后3000用户的61-75天为待预测点，空间坐标被mask为(999,999)）
+        if city_code != 0:
+            traj_df = traj_df[traj_df['uid'] < len(pd.unique(traj_df['uid'])) - 3000]
 
-            for _, traj in tqdm(traj_df.groupby('uid')):
+        for _, traj in tqdm(traj_df.groupby('uid')):
 
-                # 全部转换为numpy数组
-                d = traj['d'].to_numpy()
-                t = traj['t'].to_numpy()
-                input_x = copy.deepcopy(traj['x'].to_numpy())   # 创建独立副本
-                input_y = copy.deepcopy(traj['y'].to_numpy())   # 创建独立副本
-                time_delta = np.insert((traj['d'].to_numpy()[1:] * 48 + traj['t'].to_numpy()[1:]) - 
-                                       (traj['d'].to_numpy()[:-1] * 48 + traj['t'].to_numpy()[:-1]), 0, 0)
-                time_delta[time_delta > 47] = 47
-                label_x = traj['x'].to_numpy()
-                label_y = traj['y'].to_numpy()
+            # 全部转换为numpy数组
+            d = traj['d'].to_numpy()
+            t = traj['t'].to_numpy()
+            input_x = copy.deepcopy(traj['x'].to_numpy())   # 创建独立副本
+            input_y = copy.deepcopy(traj['y'].to_numpy())   # 创建独立副本
+            time_delta = np.insert((traj['d'].to_numpy()[1:] * 48 + traj['t'].to_numpy()[1:]) - 
+                                    (traj['d'].to_numpy()[:-1] * 48 + traj['t'].to_numpy()[:-1]), 0, 0)
+            time_delta[time_delta > 47] = 47
+            label_x = traj['x'].to_numpy()
+            label_y = traj['y'].to_numpy()
 
-                # 训练时，对每个uid分组随机mask掉长度为15天的连续序列
-                d_unique = np.unique(d)
-                if len(d_unique[(d_unique >= np.min(d_unique)) & 
-                                (d_unique <= np.max(d_unique) - 14)]) == 0:
-                    continue
-                mask_d_start = np.random.choice(d_unique[(d_unique >= np.min(d_unique)) & 
-                                                         (d_unique <= np.max(d_unique) - 14)])
-                mask_d_end = mask_d_start + 14
-                need_mask_idx = np.where((d >= mask_d_start) & (d <= mask_d_end))
-                input_x[need_mask_idx] = 201
-                input_y[need_mask_idx] = 201
+            # 训练时，对每个uid分组随机mask掉长度为15天的连续序列
+            d_unique = np.unique(d)
+            if len(d_unique[(d_unique >= np.min(d_unique)) & 
+                            (d_unique <= np.max(d_unique) - 14)]) == 0:
+                continue
+            mask_d_start = np.random.choice(d_unique[(d_unique >= np.min(d_unique)) & 
+                                                        (d_unique <= np.max(d_unique) - 14)])
+            mask_d_end = mask_d_start + 14
+            need_mask_idx = np.where((d >= mask_d_start) & (d <= mask_d_end))
+            input_x[need_mask_idx] = 201
+            input_y[need_mask_idx] = 201
 
-                # 将所有uid分组整合到一起并保存
-                self.d_array.append(d + 1)  # 1-75; 0:<pad>
-                self.t_array.append(t + 1)  # 1-48; 0:<pad>
-                self.input_x_array.append(input_x)  # 1-200; 0:<pad>; 201:<mask>
-                self.input_y_array.append(input_y)  # 1-200; 0:<pad>; 201:<mask>
-                self.time_delta_array.append(time_delta)    # 0-47; 0:<pad>
-                self.label_x_array.append(label_x - 1)  # 0-199
-                self.label_y_array.append(label_y - 1)  # 0-199
-                self.len_array.append(len(d))   # 每个uid分组（即每条用户轨迹）的长度
-                self.city_array.append(city_code)   # 城市ABCD-编码0123
+            # 将所有uid分组整合到一起并保存
+            self.d_array.append(d + 1)  # 1-75; 0:<pad>
+            self.t_array.append(t + 1)  # 1-48; 0:<pad>
+            self.input_x_array.append(input_x)  # 1-200; 0:<pad>; 201:<mask>
+            self.input_y_array.append(input_y)  # 1-200; 0:<pad>; 201:<mask>
+            self.time_delta_array.append(time_delta)    # 0-47; 0:<pad>
+            self.label_x_array.append(label_x - 1)  # 0-199
+            self.label_y_array.append(label_y - 1)  # 0-199
+            self.len_array.append(len(d))   # 每个uid分组（即每条用户轨迹）的长度
+            self.city_array.append(city_code)   # 城市ABCD-编码0123
         
         self.len_array = np.array(self.len_array, dtype=np.int64)   # 转换为整型
     
-    def get_city_code(city):
+    def get_city_code(self, city):
         city_dict = {
             'A': 0,
             'B': 1,
@@ -169,7 +165,7 @@ class humobDatasetFT(Dataset):
 
         self.len_array = np.array(self.len_array, dtype=np.int64)
     
-    def get_city_code(city):
+    def get_city_code(self, city):
         city_dict = {
             'A': 0,
             'B': 1,
@@ -257,7 +253,7 @@ class HumobDatasetVal(Dataset):
 
         self.len_array = np.array(self.len_array, dtype=np.int64)
 
-    def get_city_code(city):
+    def get_city_code(self, city):
         city_dict = {
             'A': 0,
             'B': 1,

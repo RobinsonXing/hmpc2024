@@ -17,11 +17,10 @@ from model import *
 
 path_arr = [
     './dataset/cityA_groundtruthdata.csv.gz',
-    './dataset/cityB_challengedata.csv.gz',
-    './dataset/cityC_challengedata.csv.gz',
-    './dataset/cityD_challengedata.csv.gz',
+    './dataset/cityB_challengedata.csv.gz'
+    './dataset/cityC_challengedata.csv.gz'
+    './dataset/cityD_challengedata.csv.gz'
 ]
-cities = ['A', 'B', 'C', 'D']
 
 # 设置随机种子以确保结果的可重复性
 def set_random_seed(seed=0):
@@ -42,7 +41,7 @@ def collate_fn(batch):
     label_x = [item['label_x'] for item in batch]
     label_y = [item['label_y'] for item in batch]
     len_tensor = torch.tensor([item['len'] for item in batch])
-    city = torch.tensor([item['city'] for item in batch])
+    city = [item['city'] for item in batch]
 
     # 将样本填充至相同长度，填充值均为0
     d_padded = pad_sequence(d, batch_first=True, padding_value=0)
@@ -64,6 +63,7 @@ def collate_fn(batch):
         'label_x': label_x_padded,
         'label_y': label_y_padded,
         'len': len_tensor
+        ''
     }
 
 # 预训练函数
@@ -93,8 +93,8 @@ def pretrain(args):
     writer = SummaryWriter(tensorboard_log_path)
 
     # 加载预训练集
-    dataset_pretrain = HuMobDatasetPreTrain(path_arr[0], cities[0])
-    dataloader_pretrain = DataLoader(task1_dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
+    dataset_pretrain = HuMobDatasetPreTrain(path='./dataset/cityA_groundtruthdata.csv.gz', city='A')
+    dataloader_pretrain = DataLoader(dataset_pretrain, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
     device = torch.device(f'cuda:{args.cuda}')
