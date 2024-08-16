@@ -71,7 +71,8 @@ class HuMobDatasetPreTrain(Dataset):
         
         self.len_array = np.array(self.len_array, dtype=np.int64)   
         self.city_array = np.array(self.city_array, dtype=np.int64)
-        print(self.d_array.shape, self.city_array.shape)
+
+        print(np.array(self.d_array).shape, np.array(self.city_array).shape)
     
     def get_city_code(self, path):
         path_dict = {
