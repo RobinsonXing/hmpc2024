@@ -14,7 +14,7 @@ class HuMobDatasetPreTrain(Dataset):
     """预训练集"""
     def __init__(self, path_arr, cities):
 
-        if len(path_arr) != len(cities):
+        if len([path_arr]) != len([cities]):
             raise ValueError('The parameter cities is NOT correct')
 
         # 初始化
