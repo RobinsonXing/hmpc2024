@@ -114,15 +114,17 @@ class EmbeddingLayer(nn.Module):
         self.location_x_embedding = LocationXEmbeddingModel(embed_size)
         self.location_y_embedding = LocationYEmbeddingModel(embed_size)
         self.timedelta_embedding = TimedeltaEmbeddingModel(embed_size)
+        self.city_embedding = CityEmbedding(embed_size)
 
-    def forward(self, day, time, location_x, location_y, timedelta):
+    def forward(self, day, time, location_x, location_y, timedelta, city):
         day_embed = self.day_embedding(day)
         time_embed = self.time_embedding(time)
         location_x_embed = self.location_x_embedding(location_x)
         location_y_embed = self.location_y_embedding(location_y)
         timedelta_embed = self.timedelta_embedding(timedelta)
+        city_embed = self.city_embedding(city)
 
-        embed = day_embed + time_embed + location_x_embed + location_y_embed + timedelta_embed
+        embed = day_embed + time_embed + location_x_embed + location_y_embed + timedelta_embed + city_embed
         return embed
     
 
