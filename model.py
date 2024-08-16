@@ -123,7 +123,7 @@ class EmbeddingLayer(nn.Module):
         location_y_embed = self.location_y_embedding(location_y)
         timedelta_embed = self.timedelta_embedding(timedelta)
         city_embed = self.city_embedding(city)
-        print(day_embed.shape, time_embed.shape, location_x_embed.shape, location_y_embed.shape, timedelta_embed.shape, city_embed.shape)
+        # print(day_embed.shape, time_embed.shape, location_x_embed.shape, location_y_embed.shape, timedelta_embed.shape, city_embed.shape)
         embed = day_embed + time_embed + location_x_embed + location_y_embed + timedelta_embed + city_embed
         return embed
     
