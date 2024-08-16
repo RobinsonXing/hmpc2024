@@ -96,7 +96,7 @@ class CityEmbedding(nn.Module):
     def __init__(self, embed_size):
         super(CityEmbedding, self).__init__()
         self.city_embedding = nn.Embedding(
-            num_embeddings=4,
+            num_embeddings=4+1,
             embedding_dim=embed_size
         )
     def forward(self, city):

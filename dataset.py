@@ -30,7 +30,7 @@ class HuMobDatasetPreTrain(Dataset):
         city_code = self.get_city_code(path)
 
         # 剔除城市BCD的待预测用户（每个城市最后3000用户的61-75天为待预测点，空间坐标被mask为(999,999)）
-        if city_code != 0:
+        if city_code > 1:
             traj_df = traj_df[traj_df['uid'] < len(pd.unique(traj_df['uid'])) - 3000]
 
         for _, traj in tqdm(traj_df.groupby('uid')):
@@ -43,9 +43,9 @@ class HuMobDatasetPreTrain(Dataset):
             time_delta = np.insert((traj['d'].to_numpy()[1:] * 48 + traj['t'].to_numpy()[1:]) - 
                                     (traj['d'].to_numpy()[:-1] * 48 + traj['t'].to_numpy()[:-1]), 0, 0)
             time_delta[time_delta > 47] = 47
+            city = np.full(len(d), city_code, dtype=int)
             label_x = traj['x'].to_numpy()
             label_y = traj['y'].to_numpy()
-            city = np.full(len(d), city_code, dtype=int)
 
             # 训练时，对每个uid分组随机mask掉长度为15天的连续序列
             d_unique = np.unique(d)
@@ -65,19 +65,19 @@ class HuMobDatasetPreTrain(Dataset):
             self.input_x_array.append(input_x)  # 1-200; 0:<pad>; 201:<mask>
             self.input_y_array.append(input_y)  # 1-200; 0:<pad>; 201:<mask>
             self.time_delta_array.append(time_delta)    # 0-47; 0:<pad>
+            self.city_array.append(city)   # add: 城市ABCD-编码0123
             self.label_x_array.append(label_x - 1)  # 0-199
             self.label_y_array.append(label_y - 1)  # 0-199
             self.len_array.append(len(d))   # 每个uid分组（即每条用户轨迹）的长度
-            self.city_array.append(city)   # 城市ABCD-编码0123
         
-        self.len_array = np.array(self.len_array, dtype=np.int64)
+        self.len_array = np.array(self.len_array, dtype=np.int64)   # 转换为numpy数组
     
     def get_city_code(self, path):
         path_dict = {
-            './dataset/cityA_groundtruthdata.csv.gz':0,
-            './dataset/cityB_challengedata.csv.gz':1,
-            './dataset/cityC_challengedata.csv.gz':2,
-            './dataset/cityD_challengedata.csv.gz':3
+            './dataset/cityA_groundtruthdata.csv.gz':1,
+            './dataset/cityB_challengedata.csv.gz':2,
+            './dataset/cityC_challengedata.csv.gz':3,
+            './dataset/cityD_challengedata.csv.gz':4
         }
         return path_dict.get(path, 'No such dataset!')
 
@@ -90,20 +90,20 @@ class HuMobDatasetPreTrain(Dataset):
         input_x = torch.tensor(self.input_x_array[index])
         input_y = torch.tensor(self.input_y_array[index])
         time_delta = torch.tensor(self.time_delta_array[index])
+        city = torch.tensor(self.city_array[index]) # add
         label_x = torch.tensor(self.label_x_array[index])
         label_y = torch.tensor(self.label_y_array[index])
         len = torch.tensor(self.len_array[index])
-        city = torch.tensor(self.city_array[index])
         return {
             'd': d,
             't': t,
             'input_x': input_x,
             'input_y': input_y,
             'time_delta': time_delta,
+            'city': city,
             'label_x': label_x,
             'label_y': label_y,
-            'len': len,
-            'city': city，
+            'len': len
         }
 
 
@@ -112,7 +112,7 @@ class HuMobDatasetPreTrain(Dataset):
 
 class humobDatasetFT(Dataset):
     """微调训练集"""
-    def __init__(self, path, city):
+    def __init__(self, path):
 
         # 初始化
         self.d_array = []
