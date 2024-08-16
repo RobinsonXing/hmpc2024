@@ -16,7 +16,6 @@ class DayEmbeddingModel(nn.Module):
             num_embeddings=75+1,
             embedding_dim=embed_size,
         )
-
     def forward(self, day):
         embed = self.day_embedding(day)
         return embed
@@ -49,7 +48,7 @@ class LocationXEmbeddingModel(nn.Module):
         super(LocationXEmbeddingModel, self).__init__()
 
         self.location_embedding = nn.Embedding(
-            num_embeddings=202,
+            num_embeddings=200+2,
             embedding_dim=embed_size,
         )
     def forward(self, location):
@@ -67,7 +66,7 @@ class LocationYEmbeddingModel(nn.Module):
         super(LocationYEmbeddingModel, self).__init__()
 
         self.location_embedding = nn.Embedding(
-            num_embeddings=202,
+            num_embeddings=200+2,
             embedding_dim=embed_size,
         )
     def forward(self, location):
@@ -90,11 +89,19 @@ class TimedeltaEmbeddingModel(nn.Module):
     def forward(self, timedelta):
         embed = self.timedelta_embedding(timedelta)
         return embed
-    
+
+
 
 class CityEmbedding(nn.Module):
-    def __init__(self, *args, **kwargs):
-        super().__init__()
+    def __init__(self, embed_size):
+        super(CityEmbedding, self).__init__()
+        self.city_embedding = nn.Embedding(
+            num_embeddings=4,
+            embedding_dim=embed_size
+        )
+    def forward(self, city):
+        embed = self.city_embedding(city)
+        return embed
     
 # sum up the embedding to form the embedding layer
 
