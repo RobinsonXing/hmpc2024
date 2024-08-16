@@ -71,7 +71,6 @@ class HuMobDatasetPreTrain(Dataset):
             self.city_array.append(city)   # 城市ABCD-编码0123
         
         self.len_array = np.array(self.len_array, dtype=np.int64)   # 转换为整型
-        self.city_array = np.array(self.city_array, dtype=np.int64)
     
     def get_city_code(self, path):
         path_dict = {
