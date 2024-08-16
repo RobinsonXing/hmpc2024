@@ -45,6 +45,7 @@ class HuMobDatasetPreTrain(Dataset):
             time_delta[time_delta > 47] = 47
             label_x = traj['x'].to_numpy()
             label_y = traj['y'].to_numpy()
+            city = np.array([city_code] * len(d), dtype=np.int8)
 
             # 训练时，对每个uid分组随机mask掉长度为15天的连续序列
             d_unique = np.unique(d)
@@ -67,10 +68,10 @@ class HuMobDatasetPreTrain(Dataset):
             self.label_x_array.append(label_x - 1)  # 0-199
             self.label_y_array.append(label_y - 1)  # 0-199
             self.len_array.append(len(d))   # 每个uid分组（即每条用户轨迹）的长度
-            self.city_array.append([city_code] * len(d))   # 城市ABCD-编码0123
+            self.city_array.append(city)   # 城市ABCD-编码0123
         
         self.len_array = np.array(self.len_array, dtype=np.int64)   
-        self.city_array = np.array(self.city_array, dtype=np.int64)
+        # self.city_array = np.array(self.city_array, dtype=np.int64)
     
     def get_city_code(self, path):
         path_dict = {
