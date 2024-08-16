@@ -70,8 +70,7 @@ class HuMobDatasetPreTrain(Dataset):
             self.len_array.append(len(d))   # 每个uid分组（即每条用户轨迹）的长度
             self.city_array.append(city)   # 城市ABCD-编码0123
         
-        self.len_array = np.array(self.len_array, dtype=np.int64)   
-        # self.city_array = np.array(self.city_array, dtype=np.int64)
+        self.len_array = np.array(self.len_array, dtype=np.int64)
     
     def get_city_code(self, path):
         path_dict = {
@@ -104,7 +103,7 @@ class HuMobDatasetPreTrain(Dataset):
             'label_x': label_x,
             'label_y': label_y,
             'len': len,
-            'city': city
+            'city': city，
         }
 
 
