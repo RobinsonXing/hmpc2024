@@ -41,7 +41,7 @@ def collate_fn(batch):
     label_x = [item['label_x'] for item in batch]
     label_y = [item['label_y'] for item in batch]
     len_tensor = torch.tensor([item['len'] for item in batch])
-    city_tensor = torch.tensor([item['city'] for item in batch])
+    city_tensor = [item['city'] for item in batch]
 
     # 将样本填充至相同长度，填充值均为0
     d_padded = pad_sequence(d, batch_first=True, padding_value=0)
