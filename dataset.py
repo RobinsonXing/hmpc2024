@@ -27,7 +27,7 @@ class HuMobDatasetPreTrain(Dataset):
         
         # 读取数据
         traj_df = pd.read_csv(path, compression='gzip')
-        city_code = self.get_city_code(city)
+        city_code = self.get_city_code(path)
 
         # 剔除城市BCD的待预测用户（每个城市最后3000用户的61-75天为待预测点，空间坐标被mask为(999,999)）
         if city_code != 0:
@@ -71,14 +71,14 @@ class HuMobDatasetPreTrain(Dataset):
         
         self.len_array = np.array(self.len_array, dtype=np.int64)   # 转换为整型
     
-    def get_city_code(self, city):
-        city_dict = {
-            'A': 0,
-            'B': 1,
-            'C': 2,
-            'D': 3,
+    def get_city_code(self, path):
+        path_dict = {
+            './dataset/cityA_groundtruthdata.csv.gz':0,
+            './dataset/cityB_challengedata.csv.gz':1,
+            './dataset/cityC_challengedata.csv.gz':2,
+            './dataset/cityD_challengedata.csv.gz':3
         }
-        return city_dict.get(city, 'Invalid City!')
+        return path_dict.get(path, 'No such dataset!')
 
     def __len__(self):
         return len(self.d_array)
@@ -165,14 +165,14 @@ class humobDatasetFT(Dataset):
 
         self.len_array = np.array(self.len_array, dtype=np.int64)
     
-    def get_city_code(self, city):
-        city_dict = {
-            'A': 0,
-            'B': 1,
-            'C': 2,
-            'D': 3,
+    def get_city_code(self, path):
+        path_dict = {
+            './dataset/cityA_groundtruthdata.csv.gz':0,
+            './dataset/cityB_challengedata.csv.gz':1,
+            './dataset/cityC_challengedata.csv.gz':2,
+            './dataset/cityD_challengedata.csv.gz':3
         }
-        return city_dict.get(city, 'Invalid City!')
+        return path_dict.get(path, 'No such dataset!')
 
     def __len__(self):
         return len(self.d_array)
@@ -253,14 +253,14 @@ class HumobDatasetVal(Dataset):
 
         self.len_array = np.array(self.len_array, dtype=np.int64)
 
-    def get_city_code(self, city):
-        city_dict = {
-            'A': 0,
-            'B': 1,
-            'C': 2,
-            'D': 3,
+    def get_city_code(self, path):
+        path_dict = {
+            './dataset/cityA_groundtruthdata.csv.gz':0,
+            './dataset/cityB_challengedata.csv.gz':1,
+            './dataset/cityC_challengedata.csv.gz':2,
+            './dataset/cityD_challengedata.csv.gz':3
         }
-        return city_dict.get(city, 'Invalid City!')
+        return path_dict.get(path, 'No such dataset!')
 
     def __len__(self):
         return len(self.d_array)
