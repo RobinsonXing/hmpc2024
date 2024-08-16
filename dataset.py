@@ -50,9 +50,10 @@ class HuMobDatasetPreTrain(Dataset):
                 label_x = traj['x'].to_numpy()
                 label_y = traj['y'].to_numpy()
 
-                # 对每个uid分组，随机mask掉15天长度的连续序列
+                # 训练时，对每个uid分组随机mask掉长度为15天的连续序列
                 d_unique = np.unique(d)
-                if len(d_unique[(d_unique >= np.min(d_unique)) & (d_unique <= np.max(d_unique) - 14)]) == 0:
+                if len(d_unique[(d_unique >= np.min(d_unique)) & 
+                                (d_unique <= np.max(d_unique) - 14)]) == 0:
                     continue
                 mask_d_start = np.random.choice(d_unique[(d_unique >= np.min(d_unique)) & 
                                                          (d_unique <= np.max(d_unique) - 14)])
@@ -146,7 +147,8 @@ class humobDatasetFT(Dataset):
             label_y = traj['y'].to_numpy()
 
             d_unique = np.unique(d)
-            if len(d_unique[(d_unique >= np.min(d_unique)) & (d_unique <= np.max(d_unique) - 14)]) == 0:
+            if len(d_unique[(d_unique >= np.min(d_unique)) & 
+                            (d_unique <= np.max(d_unique) - 14)]) == 0:
                 continue
             mask_d_start = np.random.choice(d_unique[(d_unique >= np.min(d_unique)) & 
                                                      (d_unique <= np.max(d_unique) - 14)])
