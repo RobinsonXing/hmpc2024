@@ -171,8 +171,8 @@ class LPBERT(nn.Module):
         self.transformer_encoder = TransformerEncoderModel(layers_num, heads_num, embed_size)
         self.ffn_layer = FFNLayer(embed_size)
 
-    def forward(self, day, time, location_x, location_y, timedelta, len):
-        embed = self.embedding_layer(day, time, location_x, location_y, timedelta)
+    def forward(self, day, time, location_x, location_y, timedelta, len, city):
+        embed = self.embedding_layer(day, time, location_x, location_y, timedelta, city)
         embed = embed.transpose(0, 1)
 
         max_len = day.shape[-1]

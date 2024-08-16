@@ -17,8 +17,8 @@ from model import *
 
 path_arr = [
     './dataset/cityA_groundtruthdata.csv.gz',
-    './dataset/cityB_challengedata.csv.gz'
-    './dataset/cityC_challengedata.csv.gz'
+    './dataset/cityB_challengedata.csv.gz',
+    './dataset/cityC_challengedata.csv.gz',
     './dataset/cityD_challengedata.csv.gz'
 ]
 
@@ -41,7 +41,7 @@ def collate_fn(batch):
     label_x = [item['label_x'] for item in batch]
     label_y = [item['label_y'] for item in batch]
     len_tensor = torch.tensor([item['len'] for item in batch])
-    city = [item['city'] for item in batch]
+    city_tensor = torch.tensor([item['city'] for item in batch])
 
     # 将样本填充至相同长度，填充值均为0
     d_padded = pad_sequence(d, batch_first=True, padding_value=0)
@@ -51,7 +51,6 @@ def collate_fn(batch):
     time_delta_padded = pad_sequence(time_delta, batch_first=True, padding_value=0)
     label_x_padded = pad_sequence(label_x, batch_first=True, padding_value=0)
     label_y_padded = pad_sequence(label_y, batch_first=True, padding_value=0)
-    city_padded = pad_sequence(city, batch_first=True, padding_value=0)
 
     # 返回字典，包含填充后的张量
     return {
@@ -63,7 +62,7 @@ def collate_fn(batch):
         'label_x': label_x_padded,
         'label_y': label_y_padded,
         'len': len_tensor
-        ''
+        'city': city_tensor
     }
 
 # 预训练函数
@@ -93,7 +92,7 @@ def pretrain(args):
     writer = SummaryWriter(tensorboard_log_path)
 
     # 加载预训练集
-    dataset_pretrain = HuMobDatasetPreTrain(path='./dataset/cityA_groundtruthdata.csv.gz', city='A')
+    dataset_pretrain = HuMobDatasetPreTrain(path_arr[0])
     dataloader_pretrain = DataLoader(dataset_pretrain, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -120,9 +119,10 @@ def pretrain(args):
             batch['label_x'] = batch['label_x'].to(device)
             batch['label_y'] = batch['label_y'].to(device)
             batch['len'] = batch['len'].to(device)
+            batch['city'] = batch['city'].to(device)
 
             # 将数据输入模型中得到输出
-            output = model(batch['d'], batch['t'], batch['input_x'], batch['input_y'], batch['time_delta'], batch['len'])
+            output = model(batch['d'], batch['t'], batch['input_x'], batch['input_y'], batch['time_delta'], batch['len'], batch['city'])
 
             # 将x和y堆叠成一个张量
             label = torch.stack((batch['label_x'], batch['label_y']), dim=-1)
@@ -137,7 +137,6 @@ def pretrain(args):
             optimizer.step()
             optimizer.zero_grad()
 
-            
             step = epoch_id * len(task1_dataloader_train) + batch_id
             writer.add_scalar('loss', loss.detach().item(), step)
         scheduler.step()
