@@ -92,9 +92,9 @@ def pretrain(args):
     #  TensorBoard日志写入器，用于记录训练过程中的标量值
     writer = SummaryWriter(tensorboard_log_path)
 
-    # 加载预训练集
-    dataset_pretrain = HuMobDatasetPreTrain(path_arr[0])
-    dataloader_pretrain = DataLoader(dataset_pretrain, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
+    # 加载训练集
+    dataset_train = TrainSet(path_arr[0])
+    dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
     device = torch.device(f'cuda:{args.cuda}')
@@ -109,7 +109,7 @@ def pretrain(args):
 
     # 训练循环
     for epoch_id in range(args.epochs):
-        for batch_id, batch in enumerate(tqdm(dataloader_pretrain)):
+        for batch_id, batch in enumerate(tqdm(dataloader_train)):
 
             # 按批次将数据加载至GPU中
             batch['d'] = batch['d'].to(device)
@@ -138,7 +138,7 @@ def pretrain(args):
             optimizer.step()
             optimizer.zero_grad()
 
-            step = epoch_id * len(dataloader_pretrain) + batch_id
+            step = epoch_id * len(dataloader_train) + batch_id
             writer.add_scalar('loss', loss.detach().item(), step)
         scheduler.step()
 
