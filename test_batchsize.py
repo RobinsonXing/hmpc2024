@@ -22,6 +22,7 @@ def find_max_batch_size(model, dataset, device='cuda', max_batch_size=256):
                 batch['len'] = batch['len'].to(device)
                 batch['city'] = batch['city'].to(device)
                 _ = model(batch['d'], batch['t'], batch['input_x'], batch['input_y'], batch['time_delta'], batch['len'], batch['city'])  # Forward pass
+            print(f'batch_size = {batch_size}\n')
             batch_size *= 2  # Double batch_size for the next iteration
         except RuntimeError as e:
             if 'out of memory' in str(e):
