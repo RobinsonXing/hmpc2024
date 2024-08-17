@@ -93,7 +93,7 @@ def pretrain(args):
     writer = SummaryWriter(tensorboard_log_path)
 
     # 加载训练集
-    dataset_train = TrainSet(path_arr[0])
+    dataset_train = TrainSet(path_arr)
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
