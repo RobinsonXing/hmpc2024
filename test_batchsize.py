@@ -12,8 +12,16 @@ def find_max_batch_size(model, dataset, device='cuda', max_batch_size=256):
         try:
             dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn, num_workers=2)
             for batch in dataloader:
-                inputs = batch[0].to(device)
-                _ = model(inputs)  # Forward pass
+                batch['d'] = batch['d'].to(device)
+                batch['t'] = batch['t'].to(device)
+                batch['input_x'] = batch['input_x'].to(device)
+                batch['input_y'] = batch['input_y'].to(device)
+                batch['time_delta'] = batch['time_delta'].to(device)
+                batch['label_x'] = batch['label_x'].to(device)
+                batch['label_y'] = batch['label_y'].to(device)
+                batch['len'] = batch['len'].to(device)
+                batch['city'] = batch['city'].to(device)
+                _ = model(batch['d'], batch['t'], batch['input_x'], batch['input_y'], batch['time_delta'], batch['len'], batch['city'])  # Forward pass
             batch_size *= 2  # Double batch_size for the next iteration
         except RuntimeError as e:
             if 'out of memory' in str(e):
