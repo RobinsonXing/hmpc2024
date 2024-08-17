@@ -30,7 +30,8 @@ class TrainSet(Dataset):
             # 剔除城市BCD的待预测用户（每个城市最后3000用户的61-75天为待预测点，空间坐标被mask为(999,999)）
             # 保留80%作训练集
             if city_code > 1:
-                traj_df = traj_df[traj_df['uid'] < (len(pd.unique(traj_df['uid'])) - 3000) * 4 / 5]
+                traj_df = traj_df[traj_df['uid'] < len(pd.unique(traj_df['uid'])) - 3000]
+            traj_df = traj_df[traj_df['uid'] < len(pd.unique(traj_df['uid'])) * 4 / 5]
 
             for _, traj in tqdm(traj_df.groupby('uid')):
 

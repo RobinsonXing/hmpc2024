@@ -1,3 +1,14 @@
+######## 方案一 ########
+# 1.
+# 对所有城市ABCD，剔除待预测用户，各保留前4/5作为训练集，后1/5作为验证集
+# 待预测用户的所有数据作为测试集
+#
+# 2.
+# 对来自各数据集的数据打上city标签
+# 在嵌入层对city作embedding
+#
+
+
 import os
 import argparse
 import logging
@@ -15,12 +26,14 @@ from torch.utils.tensorboard import SummaryWriter
 from dataset import *
 from model import *
 
+
 path_arr = [
     './dataset/cityA_groundtruthdata.csv.gz',
     './dataset/cityB_challengedata.csv.gz',
     './dataset/cityC_challengedata.csv.gz',
     './dataset/cityD_challengedata.csv.gz'
 ]
+
 
 # 设置随机种子以确保结果的可重复性
 def set_random_seed(seed=0):
@@ -30,6 +43,7 @@ def set_random_seed(seed=0):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
 
 # 将一个批次的数据样本整合成一个张量
 def collate_fn(batch):
@@ -66,8 +80,9 @@ def collate_fn(batch):
         'len': len_tensor
     }
 
-# 预训练函数
-def pretrain(args):
+
+# 训练函数
+def train(args):
 
     # 设置日志文件名
     name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
@@ -146,7 +161,9 @@ def pretrain(args):
 
     torch.save(model.state_dict(), os.path.join(checkpoint_path, f'{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.pth'))
 
+
 if __name__ == '__main__':
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--epochs', type=int, default=200)
@@ -161,4 +178,4 @@ if __name__ == '__main__':
 
     set_random_seed(args.seed)
 
-    pretrain(args)
+    train(args)
