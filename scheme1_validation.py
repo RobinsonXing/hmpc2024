@@ -17,23 +17,33 @@ path_arr = [
 ]
 
 def Validation(args):
+
+    # 设置结果的存储路径
     result_path = 'validation/scheme1'
     os.makedirs(result_path, exist_ok=True)
 
+    # 加载验证集
     dataset_val = ValidationSet(path_arr)
     dataloader_val = DataLoader(dataset_val, batch_size=1, num_workers=args.num_workers)
 
+    # 通过cuda:<device_id>指定使用的GPU
     device = torch.device(f'cuda:{args.cuda}')
+
+    # 实例化LP-BERT模型加载至GPU上，并加载预训练模型的参数
     model = LPBERT(args.layers_num, args.heads_num, args.embed_size).to(device)
     model.load_state_dict(torch.load(args.pth_file, map_location=device))
 
+    # 初始化
     result = dict()
     result['generated'] = []
     result['reference'] = []
 
-    model.eval()
+    # 模型验证
+    model.eval() # 评估模式
     with torch.no_grad():
         for data in tqdm(dataloader_val):
+
+            # 将数据加载到GPU上
             data['d'] = data['d'].to(device)
             data['t'] = data['t'].to(device)
             data['input_x'] = data['input_x'].to(device)
@@ -44,10 +54,12 @@ def Validation(args):
             data['label_y'] = data['label_y'].to(device)
             data['len'] = data['len'].to(device)
 
+            # 获取推测，并将标签堆叠成张量
             output = model(data['d'], data['t'], data['input_x'], data['input_y'], data['time_delta'], data['len'], data['city'])
             label = torch.stack((data['label_x'], data['label_y']), dim=-1)
 
-            assert torch.all((data['input_x'] == 201) == (data['input_y'] == 201))
+            # 处理输出
+            assert torch.all((data['input_x'] == 201) == (data['input_y'] == 201))  # 捡查x和y的掩码是否一致
             pred_mask = (data['input_x'] == 201)
             output = output[pred_mask]
             pred = []
@@ -60,16 +72,19 @@ def Validation(args):
                 pred.append(torch.argmax(output[step], dim=-1))
                 pre_x, pre_y = pred[-1][0].item(), pred[-1][1].item()
 
+            # 生成预测结果
             pred = torch.stack(pred)
             generated = torch.cat((data['d'][pred_mask].unsqueeze(-1)-1, data['t'][pred_mask].unsqueeze(-1)-1, pred+1), dim=-1).cpu().tolist()
             generated = [tuple(x) for x in generated]
 
+            # 生成参考结果（标签）
             reference = torch.cat((data['d'][pred_mask].unsqueeze(-1)-1, data['t'][pred_mask].unsqueeze(-1)-1, label[pred_mask]+1), dim=-1).cpu().tolist()
             reference = [tuple(x) for x in reference]
             
             result['generated'].append(generated)
             result['reference'].append(reference)
 
+    # 保存结果
     current_time = datetime.datetime.now()
     with open(os.path.join(result_path, f'{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.json'), 'w') as file:
         json.dump(result, file)
