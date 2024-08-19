@@ -89,18 +89,6 @@ class TimedeltaEmbeddingModel(nn.Module):
         return embed
 
 
-
-class CityEmbedding(nn.Module):
-    def __init__(self, embed_size):
-        super(CityEmbedding, self).__init__()
-        self.city_embedding = nn.Embedding(
-            num_embeddings=4+1,
-            embedding_dim=embed_size
-        )
-    def forward(self, city):
-        embed = self.city_embedding(city)
-        return embed
-    
 # sum up the embedding to form the embedding layer
 
 class EmbeddingLayer(nn.Module):
@@ -112,7 +100,6 @@ class EmbeddingLayer(nn.Module):
         self.location_x_embedding = LocationXEmbeddingModel(embed_size)
         self.location_y_embedding = LocationYEmbeddingModel(embed_size)
         self.timedelta_embedding = TimedeltaEmbeddingModel(embed_size)
-        self.city_embedding = CityEmbedding(embed_size)
 
     def forward(self, day, time, location_x, location_y, timedelta, city):
         day_embed = self.day_embedding(day)
@@ -120,9 +107,7 @@ class EmbeddingLayer(nn.Module):
         location_x_embed = self.location_x_embedding(location_x)
         location_y_embed = self.location_y_embedding(location_y)
         timedelta_embed = self.timedelta_embedding(timedelta)
-        city_embed = self.city_embedding(city)
-        # print(day_embed.shape, time_embed.shape, location_x_embed.shape, location_y_embed.shape, timedelta_embed.shape, city_embed.shape)
-        embed = day_embed + time_embed + location_x_embed + location_y_embed + timedelta_embed + city_embed
+        embed = day_embed + time_embed + location_x_embed + location_y_embed + timedelta_embed
         return embed
     
 
@@ -170,7 +155,7 @@ class LPBERT(nn.Module):
         self.ffn_layer = FFNLayer(embed_size)
 
     def forward(self, day, time, location_x, location_y, timedelta, len, city):
-        embed = self.embedding_layer(day, time, location_x, location_y, timedelta, city)
+        embed = self.embedding_layer(day, time, location_x, location_y, timedelta)
         embed = embed.transpose(0, 1)
 
         max_len = day.shape[-1]
