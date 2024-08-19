@@ -15,10 +15,10 @@ path_arr = [
     './dataset/cityD_challengedata.csv.gz'
 ]
 
-def Validation(args):
+def Test(args):
 
     # 设置结果的存储路径
-    result_path = 'validation/scheme1'
+    result_path = 'test/scheme1'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
@@ -99,4 +99,4 @@ if __name__ == '__main__':
     parser.add_argument('--cuda', type=int, default=0)
     args = parser.parse_args()
 
-    Validation(args)
+    Test(args)
