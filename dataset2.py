@@ -8,7 +8,7 @@ from torch.utils.data import Dataset
 
 
 class TrainSet(Dataset):
-    """剔除待预测用户，并保留前五分之四作训练集"""
+    """城市A全部作为训练集"""
     def __init__(self, path):
 
         # 初始化
@@ -22,9 +22,8 @@ class TrainSet(Dataset):
         self.len_array = []
         self.city_array = []
         
-            # 读取数据
+        # 读取数据
         traj_df = pd.read_csv(path, compression='gzip')
-
 
         for _, traj in tqdm(traj_df.groupby('uid')):
 
@@ -62,15 +61,6 @@ class TrainSet(Dataset):
             self.len_array.append(len(d))   # 每个uid分组（即每条用户轨迹）的长度
     
         self.len_array = np.array(self.len_array, dtype=np.int64)   # 转换为numpy数组
-    
-    def get_city_code(self, path):
-        path_dict = {
-            './dataset/cityA_groundtruthdata.csv.gz':1,
-            './dataset/cityB_challengedata.csv.gz':2,
-            './dataset/cityC_challengedata.csv.gz':3,
-            './dataset/cityD_challengedata.csv.gz':4
-        }
-        return path_dict.get(path, 'No such dataset!')
 
     def __len__(self):
         return len(self.d_array)
@@ -112,6 +102,8 @@ class FineTuneSet(Dataset):
         self.len_array = []
         self.city_array = []
 
+        #读取数据
+        traj_df = pd.read_csv(path, compression='gzip')
         for _, traj in tqdm(traj_df.groupby('uid')):
 
             # 全部转换为numpy数组
