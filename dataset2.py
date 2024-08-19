@@ -117,9 +117,14 @@ class FineTuneSet(Dataset):
             label_x = traj['x'].to_numpy()
             label_y = traj['y'].to_numpy()
 
-            # 验证时，对每个uid分组mask掉61—75天的序列
-            mask_d_start = 60
-            mask_d_end = 74
+            # 训练时，对每个uid分组随机mask掉长度为15天的连续序列
+            d_unique = np.unique(d)
+            if len(d_unique[(d_unique >= np.min(d_unique)) & 
+                            (d_unique <= np.max(d_unique) - 14)]) == 0:
+                continue
+            mask_d_start = np.random.choice(d_unique[(d_unique >= np.min(d_unique)) & 
+                                                        (d_unique <= np.max(d_unique) - 14)])
+            mask_d_end = mask_d_start + 14
             need_mask_idx = np.where((d >= mask_d_start) & (d <= mask_d_end))
             input_x[need_mask_idx] = 201
             input_y[need_mask_idx] = 201
