@@ -16,8 +16,8 @@ path_arr = [
     './dataset/cityD_challengedata.csv.gz'
 ]
 
-def Validation(args):
-    result_path = 'validation/scheme1'
+def Test(args):
+    result_path = 'inference/scheme1'
     os.makedirs(result_path, exist_ok=True)
 
     dataset_val = ValidationSet(path_arr)
@@ -85,4 +85,4 @@ if __name__ == '__main__':
     parser.add_argument('--cuda', type=int, default=0)
     args = parser.parse_args()
 
-    Validation(args)
+    Test(args)
