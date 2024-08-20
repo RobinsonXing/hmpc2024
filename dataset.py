@@ -21,7 +21,11 @@ class TrainSet(Dataset):
         self.label_y_array = []
         self.len_array = []
         self.city_array = []
-        
+
+        # 捡查是否为列表
+        if not isinstance(path_array, list):
+            path_array = [path_array]
+
         for path in path_array:
             # 读取数据
             traj_df = pd.read_csv(path, compression='gzip')
@@ -121,6 +125,10 @@ class ValidationSet(Dataset):
         self.label_y_array = []
         self.len_array = []
         self.city_array = []
+
+        # 捡查是否为列表
+        if not isinstance(path_array, list):
+            path_array = [path_array]
         
         for path in path_array:
             # 读取数据
@@ -215,6 +223,10 @@ class TestSet(Dataset):
         self.label_y_array = []
         self.len_array = []
         self.city_array = []
+
+        # 捡查是否为列表
+        if not isinstance(path_array, list):
+            path_array = [path_array]
         
         for path in path_array:
             # 读取数据
@@ -225,7 +237,8 @@ class TestSet(Dataset):
             if city_code > 1:
                 traj_df = traj_df[traj_df['uid'] >= len(pd.unique(traj_df['uid'])) - 3000]
             else:
-                continue
+                print("Wrong Dataset!")
+                return None
 
             for _, traj in tqdm(traj_df.groupby('uid')):
 
