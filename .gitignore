@@ -1,11 +1,3 @@
 # 数据集
 *.csv
 *.csv.gz
-
-# 缓存文件
-__pycache__/
-
-# 日志文件
-checkpoint/
-log/
-tb_log/
