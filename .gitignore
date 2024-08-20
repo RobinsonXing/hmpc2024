@@ -3,4 +3,5 @@
 *.csv.gz
 
 *.json
-./validation
+/validation
+/inference
