@@ -18,8 +18,6 @@ class DayEmbeddingModel(nn.Module):
         embed = self.day_embedding(day)
         return embed
 
-
-
 class TimeEmbeddingModel(nn.Module):
     '''
     0: <PAD>
