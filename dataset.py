@@ -131,7 +131,7 @@ class ValidationSet(Dataset):
             # 保留20%作验证集
             if city_code > 1:
                 traj_df = traj_df[traj_df['uid'] < len(pd.unique(traj_df['uid'])) - 3000]
-            traj_df = traj_df[traj['uid'] >= len(pd.unique(traj['uid'])) * 4 / 5]
+            traj_df = traj_df[traj['uid'] >= len(pd.unique(traj_df['uid'])) * 4 / 5]
 
             for _, traj in tqdm(traj_df.groupby('uid')):
 
