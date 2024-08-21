@@ -3,7 +3,6 @@
 # 用城市A的数据做训练
 # 再用城市B或C或D的数据作微调
 #
-#
 
 
 import os
@@ -163,7 +162,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--epochs', type=int, default=200)
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--layers_num', type=int, default=4)
