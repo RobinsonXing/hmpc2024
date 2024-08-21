@@ -89,9 +89,9 @@ def train(args):
     current_time = datetime.datetime.now()
 
     # 设置存储日志文件的路径
-    log_path = os.path.join('log', 'pretrain', name)
-    tensorboard_log_path = os.path.join('tb_log', 'pretrain', name)
-    checkpoint_path = os.path.join('checkpoint', 'pretrain', name)
+    log_path = os.path.join('log', 'scheme1', name)
+    tensorboard_log_path = os.path.join('tb_log', 'scheme1', name)
+    checkpoint_path = os.path.join('checkpoint', 'scheme1', name)
 
     # 创建路径
     os.makedirs(log_path, exist_ok=True)
