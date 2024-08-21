@@ -32,7 +32,7 @@ path_arr = [
 
 
 # 设置随机种子以确保结果的可重复性
-def set_random_seed(seed=0):
+def set_random_seed(seed=3407):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)

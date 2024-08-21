@@ -7,7 +7,7 @@ from tqdm import tqdm
 import torch
 from torch.utils.data import DataLoader
 from dataset import *
-from model import *
+from model2 import *
 
 path_arr = [
     './dataset/cityA_groundtruthdata.csv.gz',
