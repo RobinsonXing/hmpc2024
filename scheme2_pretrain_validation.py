@@ -91,7 +91,7 @@ def Validation(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pth_file', type=str, default='./checkpoint/batchsize64_epochs200_embedsize128_layersnum4_headsnum8_cuda0_lr2e-05_seed0.pth')     # 改为训练完成的模型的存储地址
+    parser.add_argument('--pth_file', type=str, default='./checkpoint/scheme2/batchsize64_epochs200_embedsize128_layersnum4_headsnum8_cuda0_lr2e-05_seed0.pth')     # 改为训练完成的模型的存储地址
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--layers_num', type=int, default=4)
