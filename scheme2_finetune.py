@@ -32,7 +32,7 @@ path_arr = [
 
 
 # 设置随机种子以确保结果的可重复性
-def set_random_seed(seed=0):
+def set_random_seed(seed=3704):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -82,9 +82,9 @@ def train(args):
     current_time = datetime.datetime.now()
 
     # 设置存储日志文件的路径
-    log_path = os.path.join('log', 'scheme2', name)
-    tensorboard_log_path = os.path.join('tb_log', 'scheme2', name)
-    checkpoint_path = os.path.join('checkpoint', 'scheme2', name)
+    log_path = os.path.join('log', 'scheme2/finetune', name)
+    tensorboard_log_path = os.path.join('tb_log', 'scheme2/finetune', name)
+    checkpoint_path = os.path.join('checkpoint', 'scheme2/finetune', name)
 
     # 创建路径
     os.makedirs(log_path, exist_ok=True)
@@ -101,7 +101,7 @@ def train(args):
     writer = SummaryWriter(tensorboard_log_path)
 
     # 加载训练集
-    dataset_train = TrainSet(path_arr[0])
+    dataset_train = TrainSet(path_arr[1])
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -109,6 +109,12 @@ def train(args):
 
     # 实例化LP-BERT模型，并加载至GPU上
     model = LPBERT(args.layers_num, args.heads_num, args.embed_size).to(device)
+    model.load_state_dict(torch.load('scheme2/xx.pth'))
+    # 冻结参数
+    for name, param in model.named_parameters():
+        if 'transformer_encoder' in name:
+            param.requires_grad = False
+    model.train()
 
     # 指定Adam优化器、CosineAnnealingLR学习率调度器、交叉熵损失函数
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
