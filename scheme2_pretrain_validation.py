@@ -19,7 +19,7 @@ path_arr = [
 def Validation(args):
 
     # 设置结果的存储路径
-    result_path = 'validation/scheme1'
+    result_path = 'validation/scheme2/pretrain'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
@@ -49,13 +49,12 @@ def Validation(args):
             data['input_x'] = data['input_x'].to(device)
             data['input_y'] = data['input_y'].to(device)
             data['time_delta'] = data['time_delta'].to(device)
-            data['city'] = data['city'].to(device)
             data['label_x'] = data['label_x'].to(device)
             data['label_y'] = data['label_y'].to(device)
             data['len'] = data['len'].to(device)
 
             # 获取推测，并将标签堆叠成张量
-            output = model(data['d'], data['t'], data['input_x'], data['input_y'], data['time_delta'], data['len'], data['city'])
+            output = model(data['d'], data['t'], data['input_x'], data['input_y'], data['time_delta'], data['len'])
             label = torch.stack((data['label_x'], data['label_y']), dim=-1)
 
             # 处理输出
