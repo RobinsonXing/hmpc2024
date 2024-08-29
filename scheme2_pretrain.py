@@ -32,7 +32,7 @@ path_arr = [
 
 
 # 设置随机种子以确保结果的可重复性
-def set_random_seed(seed=3407):
+def set_random_seed(seed=0):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -160,12 +160,12 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--epochs', type=int, default=200)
     parser.add_argument('--num_workers', type=int, default=2)
-    parser.add_argument('--embed_size', type=int, default=64)
+    parser.add_argument('--embed_size', type=int, default=256)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
-    parser.add_argument('--cuda', type=int, default=0)
+    parser.add_argument('--cuda', type=int, default=1)
     parser.add_argument('--lr', type=float, default=2e-5)
-    parser.add_argument('--seed', type=int, default=0)
+    parser.add_argument('--seed', type=int, default=3407)
     args = parser.parse_args()
 
     set_random_seed(args.seed)
