@@ -97,7 +97,7 @@ if __name__ == '__main__':
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
-    parser.add_argument('--cuda', type=int, default=1)
+    parser.add_argument('--cuda', type=int, default=0)
     args = parser.parse_args()
 
     Validation(args)
