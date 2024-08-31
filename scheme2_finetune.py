@@ -74,7 +74,7 @@ def finetune(args):
     # 设置存储日志文件的路径
     log_path = os.path.join('log', 'scheme2/finetune', name)
     tensorboard_log_path = os.path.join('tb_log', 'scheme2/finetune', name)
-    checkpoint_path = os.path.join('checkpoint', 'scheme2/finetune', name)
+    checkpoint_path = os.path.join('checkpoint', 'scheme2/finetune/cityB', name)
 
     # 创建路径
     os.makedirs(log_path, exist_ok=True)
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--epochs', type=int, default=20)  # 微调可以选择较少的epochs
     parser.add_argument('--num_workers', type=int, default=2)
-    parser.add_argument('--embed_size', type=int, default=128)
+    parser.add_argument('--embed_size', type=int, default=64)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
     parser.add_argument('--cuda', type=int, default=0)
