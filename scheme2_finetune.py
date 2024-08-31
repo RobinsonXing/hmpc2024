@@ -99,7 +99,7 @@ def finetune(args):
 
     # 实例化LP-BERT模型，并加载至GPU上
     model = LPBERT(args.layers_num, args.heads_num, args.embed_size).to(device)
-    model.load_state_dict(torch.load('scheme2/xx.pth'))
+    model.load_state_dict(torch.load(args.pretrained_model))
     
     # 冻结部分参数，只微调输出层
     for name, param in model.named_parameters():
@@ -157,6 +157,7 @@ def finetune(args):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--pretrained_model', type=str, default='./checkpoint/scheme2/batchsize64_epochs200_embedsize64_layersnum4_headsnum8_cuda0_lr2e-05_seed0/2024_08_25_12_51_49.pth')
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--epochs', type=int, default=20)  # 微调可以选择较少的epochs
     parser.add_argument('--num_workers', type=int, default=2)
