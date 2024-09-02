@@ -19,11 +19,11 @@ path_arr = [
 def Validation(args):
 
     # 设置结果的存储路径
-    result_path = f'validation/scheme2/finetune/cityB'
+    result_path = f'validation/scheme2/finetune/cityC'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
-    dataset_val = ValidationSet(path_arr[1])
+    dataset_val = ValidationSet(path_arr[2])
     dataloader_val = DataLoader(dataset_val, batch_size=1, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -91,7 +91,7 @@ def Validation(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pth_file', type=str, default='./checkpoint/scheme2/finetune/cityB/finetune_batchsize64_epochs20_embedsize64_layersnum4_headsnum8_cuda0_lr2e-05_seed3704/2024_09_01_04_45_09.pth')     # 改为训练完成的模型的存储地址
+    parser.add_argument('--pth_file', type=str, default='./checkpoint/scheme2/finetune/cityC/finetune_batchsize64_epochs20_embedsize64_layersnum4_headsnum8_cuda0_lr2e-05_seed3704/2024_09_02_10_37_28.pth')     # 改为训练完成的模型的存储地址
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=64)
     parser.add_argument('--layers_num', type=int, default=4)
