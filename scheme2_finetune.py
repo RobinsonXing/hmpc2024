@@ -74,7 +74,7 @@ def finetune(args):
     # 设置存储日志文件的路径
     log_path = os.path.join('log', 'scheme2/finetune', name)
     tensorboard_log_path = os.path.join('tb_log', 'scheme2/finetune', name)
-    checkpoint_path = os.path.join('checkpoint', 'scheme2/finetune/cityB', name)
+    checkpoint_path = os.path.join('checkpoint', 'scheme2/finetune/cityC', name)
 
     # 创建路径
     os.makedirs(log_path, exist_ok=True)
@@ -91,7 +91,7 @@ def finetune(args):
     writer = SummaryWriter(tensorboard_log_path)
 
     # 加载训练集
-    dataset_train = TrainSet(path_arr[1])
+    dataset_train = TrainSet(path_arr[2])
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
