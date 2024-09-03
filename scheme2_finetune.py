@@ -74,7 +74,7 @@ def finetune(args):
     # 设置存储日志文件的路径
     log_path = os.path.join('log', 'scheme2/finetune', name)
     tensorboard_log_path = os.path.join('tb_log', 'scheme2/finetune', name)
-    checkpoint_path = os.path.join('checkpoint', 'scheme2/finetune/cityC', name)
+    checkpoint_path = os.path.join('checkpoint', 'scheme2/finetune/cityD', name)
 
     # 创建路径
     os.makedirs(log_path, exist_ok=True)
@@ -91,7 +91,7 @@ def finetune(args):
     writer = SummaryWriter(tensorboard_log_path)
 
     # 加载训练集
-    dataset_train = TrainSet(path_arr[2])
+    dataset_train = TrainSet(path_arr[3])
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -164,7 +164,7 @@ if __name__ == '__main__':
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
-    parser.add_argument('--cuda', type=int, default=0)
+    parser.add_argument('--cuda', type=int, default=1)
     parser.add_argument('--lr', type=float, default=2e-5)
     parser.add_argument('--seed', type=int, default=3704)
     args = parser.parse_args()
