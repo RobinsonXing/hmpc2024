@@ -74,7 +74,7 @@ def finetune(args):
     # 设置存储日志文件的路径
     log_path = os.path.join('log', 'scheme2/finetune', name)
     tensorboard_log_path = os.path.join('tb_log', 'scheme2/finetune', name)
-    checkpoint_path = os.path.join('checkpoint', 'scheme2/finetune/cityD', name)
+    checkpoint_path = os.path.join('checkpoint', 'scheme2/finetune/cityC', name)
 
     # 创建路径
     os.makedirs(log_path, exist_ok=True)
@@ -91,7 +91,7 @@ def finetune(args):
     writer = SummaryWriter(tensorboard_log_path)
 
     # 加载训练集
-    dataset_train = TrainSet(path_arr[3])
+    dataset_train = TrainSet(path_arr[2])
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -157,11 +157,11 @@ def finetune(args):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrained_model', type=str, default='./checkpoint/scheme2/batchsize64_epochs200_embedsize64_layersnum4_headsnum8_cuda0_lr2e-05_seed0/2024_08_25_12_51_49.pth')
+    parser.add_argument('--pretrained_model', type=str, default='./checkpoint/scheme2/batchsize64_epochs200_embedsize128_layersnum4_headsnum8_cuda0_lr2e-05_seed0/2024_08_21_09_38_46.pth')
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--epochs', type=int, default=20)  # 微调可以选择较少的epochs
     parser.add_argument('--num_workers', type=int, default=2)
-    parser.add_argument('--embed_size', type=int, default=64)
+    parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
     parser.add_argument('--cuda', type=int, default=0)

@@ -19,7 +19,7 @@ path_arr = [
 def Validation(args):
 
     # 设置结果的存储路径
-    result_path = f'validation/scheme2/finetune/cityD'
+    result_path = f'validation/scheme2/zeroshot/cityD'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
@@ -91,9 +91,9 @@ def Validation(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pth_file', type=str, default='./checkpoint/scheme2/finetune/cityD/finetune_batchsize64_epochs20_embedsize64_layersnum4_headsnum8_cuda0_lr2e-05_seed3704/2024_09_03_00_49_12.pth')     # 改为训练完成的模型的存储地址
+    parser.add_argument('--pth_file', type=str, default='./checkpoint/scheme2/batchsize64_epochs200_embedsize128_layersnum4_headsnum8_cuda0_lr2e-05_seed0/2024_08_21_09_38_46.pth')     # 改为训练完成的模型的存储地址
     parser.add_argument('--num_workers', type=int, default=2)
-    parser.add_argument('--embed_size', type=int, default=64)
+    parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
     parser.add_argument('--cuda', type=int, default=0)
