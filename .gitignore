@@ -7,5 +7,4 @@
 /inference
 
 /__pycache__
-/log
-/tb_log
+/wandb
