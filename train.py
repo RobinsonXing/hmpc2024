@@ -79,7 +79,7 @@ def train(args):
     current_time = datetime.datetime.now()
 
     # 初始化 wandb
-    wandb.init(project="LPBERT", name="pre-embed", config=args)
+    wandb.init(project="LPBERT", name="pre-embed1", config=args)
     wandb.run.name = name  # Set the run name
     wandb.run.save()
 
