@@ -131,7 +131,7 @@ def train(args):
         scheduler.step()
 
         # 使用 wandb 记录 loss
-            wandb.log({"loss": loss.detach().item(), "step": step})
+        wandb.log({"loss": loss.detach().item(), "step": step})
 
         # 调整学习率
         scheduler.step()
