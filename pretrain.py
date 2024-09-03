@@ -126,7 +126,6 @@ def train(args):
             optimizer.zero_grad()
 
             step = epoch_id * len(dataloader_train) + batch_id
-            writer.add_scalar('loss', loss.detach().item(), step)
         
         scheduler.step()
 

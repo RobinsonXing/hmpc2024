@@ -1,0 +1,23 @@
+
+[34m[1mwandb[39m[22m: [33mWARNING[39m Calling wandb.run.save without any arguments is deprecated.Changes to attributes are automatically persisted.
+
+
+
+
+
+
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████| 80000/80000 [00:24<00:00, 3329.23it/s]
+/home/xingtong/miniconda3/envs/hmpc/lib/python3.10/site-packages/torch/nn/modules/transformer.py:306: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.self_attn.batch_first was not True(use batch_first for better inference performance)
+  warnings.warn(f"enable_nested_tensor is True, but self.use_nested_tensor is False because {why_not_sparsity_fast_path}")
+  0%|                                                                                                              | 0/1250 [00:02<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/xingtong/Documents/hmpc2024/pretrain.py", line 164, in <module>
+    train(args)
+  File "/home/xingtong/Documents/hmpc2024/pretrain.py", line 129, in train
+    writer.add_scalar('loss', loss.detach().item(), step)
+NameError: name 'writer' is not defined
