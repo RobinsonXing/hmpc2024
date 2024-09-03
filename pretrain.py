@@ -72,7 +72,8 @@ def collate_fn(batch):
 def train(args):
 
     # 设置日志文件名
-    name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
+    # name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
+    name = 'LPBERT-pretrain-cityA'
     current_time = datetime.datetime.now()
 
     # 初始化 wandb
