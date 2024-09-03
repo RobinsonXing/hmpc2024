@@ -7,4 +7,6 @@
 /inference
 
 /__pycache__
+/log
+/tblog
 /wandb
