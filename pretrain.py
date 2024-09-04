@@ -74,7 +74,7 @@ def train(args):
     # 设置日志文件名
     # name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
     name = 'LPBERT-pretrain-cityA'
-    current_time = datetime.datetime.now()
+    # current_time = datetime.datetime.now()
 
     # 初始化 wandb
     wandb.init(project="LPBERT", name="pretrain_cityA", config=args)
@@ -140,6 +140,7 @@ def train(args):
         wandb.log({"epoch_loss": loss.detach().item(), "epoch": epoch_id})
 
         # 保存模型权重到 wandb
+        current_time = datetime.datetime.now()
         model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.pth')
         torch.save(model.state_dict(), model_save_path)
         wandb.save(model_save_path)
