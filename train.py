@@ -70,13 +70,28 @@ def collate_fn(batch):
         'len': len_tensor
     }
 
+# class GeobleuLoss(nn.Module):
+#     def __init__(self):
+#         super(GeobleuLoss, self).__init__()
+    
+#     def forward(self, generated, reference):
+#         geobleu_scores = []
+
+#         for gen, ref in zip(generated, reference):
+#             geobleu_score = geobleu.calc_geobleu([gen_list], [ref_list], processes=3)
+#             geobleu_scores.append(geobleu_score)
+
+#         # 计算平均的 GeoBLEU 和 DTW 分数作为损失
+#         avg_geobleu_loss = torch.tensor(geobleu_scores).mean()
+#         avg_dtw_loss = torch.tensor(dtw_scores).mean()
+
 # 训练函数
 def train(args):
 
     # 设置日志文件名
     # name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
     name = 'LPBERT-city_embed'
-    current_time = datetime.datetime.now()
+    # current_time = datetime.datetime.now()
 
     # 初始化 wandb
     wandb.init(project="LPBERT", name='city_embed', config=args)
@@ -141,6 +156,7 @@ def train(args):
         wandb.log({"epoch_loss": loss.detach().item(), "epoch": epoch_id})
 
         # 保存模型权重到 wandb
+        current_time = datetime.datetime.now()
         model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.pth')
         torch.save(model.state_dict(), model_save_path)
         wandb.save(model_save_path)
@@ -155,7 +171,7 @@ if __name__ == '__main__':
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
-    parser.add_argument('--cuda', type=int, default=0)
+    parser.add_argument('--cuda', type=int, default=2)
     parser.add_argument('--lr', type=float, default=2e-5)
     parser.add_argument('--seed', type=int, default=3704)
     args = parser.parse_args()
