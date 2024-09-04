@@ -11,7 +11,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pad_sequence
 
-import wandb  # Import wandb for tracking
+import wandb
 
 from dataset import *
 from model import *
@@ -70,17 +70,16 @@ def collate_fn(batch):
         'len': len_tensor
     }
 
-
 # 训练函数
 def train(args):
 
     # 设置日志文件名
     # name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
-    name = 'LPBERT-cityembed'
+    name = 'LPBERT-city_embed'
     current_time = datetime.datetime.now()
 
     # 初始化 wandb
-    wandb.init(project="LPBERT", name='cityembed', config=args)
+    wandb.init(project="LPBERT", name='city_embed', config=args)
     wandb.run.name = name  # Set the run name
     wandb.run.save()
 
