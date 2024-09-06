@@ -141,7 +141,7 @@ def train(args):
 
         # 保存模型权重到 wandb
         current_time = datetime.datetime.now()
-        model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.pth')
+        model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}_epoch{epoch_id}.pth')
         torch.save(model.state_dict(), model_save_path)
         wandb.save(model_save_path)
 
