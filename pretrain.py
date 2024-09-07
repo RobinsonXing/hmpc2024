@@ -1,10 +1,3 @@
-######## 方案二 ########
-# 1.
-# 用城市A的数据做训练
-# 再用城市B或C或D的数据作微调
-#
-
-
 import os
 import argparse
 import logging
@@ -17,10 +10,11 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pad_sequence
-from torch.utils.tensorboard import SummaryWriter
+
+import wandb
 
 from dataset import *
-from model2 import *
+from model import *
 
 
 path_arr = [
@@ -78,27 +72,14 @@ def collate_fn(batch):
 def train(args):
 
     # 设置日志文件名
-    name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
-    current_time = datetime.datetime.now()
+    # name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
+    name = 'LPBERT-pretrain-cityB'
+    # current_time = datetime.datetime.now()
 
-    # 设置存储日志文件的路径
-    log_path = os.path.join('log', 'scheme2', name)
-    tensorboard_log_path = os.path.join('tb_log', 'scheme2', name)
-    checkpoint_path = os.path.join('checkpoint', 'scheme2', name)
-
-    # 创建路径
-    os.makedirs(log_path, exist_ok=True)
-    os.makedirs(tensorboard_log_path, exist_ok=True)
-    os.makedirs(checkpoint_path, exist_ok=True)
-
-    # 设置日志记录，保存到指定的日志文件中
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        filename=os.path.join(log_path, f'{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.txt'),
-                        filemode='w')
-    #  TensorBoard日志写入器，用于记录训练过程中的标量值
-    writer = SummaryWriter(tensorboard_log_path)
+    # 初始化 wandb
+    wandb.init(project="LPBERT", name="postembed_pretrain_cityABC", config=args)
+    wandb.run.name = name  # Set the run name
+    wandb.run.save()
 
     # 加载训练集
     dataset_train = TrainSet(path_arr[0])
@@ -146,21 +127,32 @@ def train(args):
             optimizer.zero_grad()
 
             step = epoch_id * len(dataloader_train) + batch_id
-            writer.add_scalar('loss', loss.detach().item(), step)
+
+            # 使用 wandb 记录 loss
+            wandb.log({"loss": loss.detach().item(), "step": step})
+
         scheduler.step()
 
-        logging.info(f'epoch: {epoch_id}, loss: {loss.detach().item()}')
+        # 调整学习率
+        scheduler.step()
 
-    torch.save(model.state_dict(), os.path.join(checkpoint_path, f'{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.pth'))
+        # 在每个 epoch 结束时记录当前的 loss
+        wandb.log({"epoch_loss": loss.detach().item(), "epoch": epoch_id})
+
+        # 保存模型权重到 wandb
+        current_time = datetime.datetime.now()
+        model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}_epoch{epoch_id+1}.pth')
+        torch.save(model.state_dict(), model_save_path)
+        wandb.save(model_save_path)
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--epochs', type=int, default=200)
+    parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--num_workers', type=int, default=2)
-    parser.add_argument('--embed_size', type=int, default=256)
+    parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
     parser.add_argument('--cuda', type=int, default=1)
