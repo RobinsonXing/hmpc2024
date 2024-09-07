@@ -73,16 +73,16 @@ def train(args):
 
     # 设置日志文件名
     # name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
-    name = 'LPBERT-pretrain-cityA'
+    name = 'LPBERT-pretrain-cityB'
     # current_time = datetime.datetime.now()
 
     # 初始化 wandb
-    wandb.init(project="LPBERT", name="pretrain_cityA", config=args)
+    wandb.init(project="LPBERT", name="pretrain_cityB", config=args)
     wandb.run.name = name  # Set the run name
     wandb.run.save()
 
     # 加载训练集
-    dataset_train = TrainSet(path_arr[0])
+    dataset_train = TrainSet(path_arr[1])
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -141,7 +141,7 @@ def train(args):
 
         # 保存模型权重到 wandb
         current_time = datetime.datetime.now()
-        model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}_epoch{epoch_id}.pth')
+        model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}_epoch{epoch_id+1}.pth')
         torch.save(model.state_dict(), model_save_path)
         wandb.save(model_save_path)
 
