@@ -114,53 +114,16 @@ class EmbeddingLayer(nn.Module):
         self.location_x_embedding = LocationXEmbeddingModel(embed_size)
         self.location_y_embedding = LocationYEmbeddingModel(embed_size)
         self.timedelta_embedding = TimedeltaEmbeddingModel(embed_size)
-        self.city_embedding = CityEmbedding(embed_size)
 
-    def forward(self, day, time, location_x, location_y, timedelta, city):
+    def forward(self, day, time, location_x, location_y, timedelta):
         day_embed = self.day_embedding(day)
         time_embed = self.time_embedding(time)
         location_x_embed = self.location_x_embedding(location_x)
         location_y_embed = self.location_y_embedding(location_y)
         timedelta_embed = self.timedelta_embedding(timedelta)
-        city_embed = self.city_embedding(city)
-        # print(day_embed.shape, time_embed.shape, location_x_embed.shape, location_y_embed.shape, timedelta_embed.shape, city_embed.shape)
-        embed = day_embed + time_embed + location_x_embed + location_y_embed + timedelta_embed + city_embed
+
+        embed = day_embed + time_embed + location_x_embed + location_y_embed + timedelta_embed
         return embed
-    
-
-
-class TransformerEncoderModel(nn.Module):
-    def __init__(self, layers_num, heads_num, embed_size):
-        super(TransformerEncoderModel, self).__init__()
-
-        self.encoder_layer = nn.TransformerEncoderLayer(d_model=embed_size, nhead=heads_num)
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layer=self.encoder_layer, num_layers=layers_num)
-    def forward(self, input, src_key_padding_mask):
-        out = self.transformer_encoder(input, src_key_padding_mask=src_key_padding_mask)
-        return out
-
-
-
-class FFNLayer(nn.Module):
-    def __init__(self, embed_size):
-        super(FFNLayer, self).__init__()
-
-        self.ffn1 = nn.Sequential(
-            nn.Linear(embed_size, 16),
-            nn.ReLU(),
-            nn.Linear(16, 200),
-        )
-        self.ffn2 = nn.Sequential(
-            nn.Linear(embed_size, 16),
-            nn.ReLU(),
-            nn.Linear(16, 200),
-        )
-    def forward(self, input):
-        output_x = self.ffn1(input)
-        output_y = self.ffn2(input)
-        output = torch.stack([output_x, output_y], dim=-2)
-        return output
-    
 
 
 class LPBERT(nn.Module):
@@ -168,11 +131,12 @@ class LPBERT(nn.Module):
         super(LPBERT, self).__init__()
 
         self.embedding_layer = EmbeddingLayer(embed_size)
+        self.city_embedding = CityEmbedding(embed_size)  # 将 city embedding 放到输出层
         self.transformer_encoder = TransformerEncoderModel(layers_num, heads_num, embed_size)
         self.ffn_layer = FFNLayer(embed_size)
 
     def forward(self, day, time, location_x, location_y, timedelta, len, city):
-        embed = self.embedding_layer(day, time, location_x, location_y, timedelta, city)
+        embed = self.embedding_layer(day, time, location_x, location_y, timedelta)
         embed = embed.transpose(0, 1)
 
         max_len = day.shape[-1]
@@ -182,8 +146,12 @@ class LPBERT(nn.Module):
         transformer_encoder_output = self.transformer_encoder(embed, src_key_padding_mask)
         transformer_encoder_output = transformer_encoder_output.transpose(0, 1)
 
+        # 获取 city embedding 并与 transformer 输出连接
+        city_embed = self.city_embedding(city)
+        city_embed = city_embed.unsqueeze(1).expand(-1, transformer_encoder_output.shape[1], -1)
+
+        # 将 city embedding 与 transformer 输出连接
+        transformer_encoder_output = torch.cat([transformer_encoder_output, city_embed], dim=-1)
+
         output = self.ffn_layer(transformer_encoder_output)
         return output
-
-
-
