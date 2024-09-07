@@ -10,10 +10,11 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pad_sequence
-from torch.utils.tensorboard import SummaryWriter
+
+import wandb
 
 from dataset import *
-from model2 import *
+from model import *
 
 
 path_arr = [
@@ -68,30 +69,17 @@ def collate_fn(batch):
 def finetune(args):
 
     # 设置日志文件名
-    name = f'finetune_batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
+    # name = f'finetune_batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
+    name = 'LPBERT-pretrainA-finetuneB'
     current_time = datetime.datetime.now()
 
-    # 设置存储日志文件的路径
-    log_path = os.path.join('log', 'scheme2/finetune', name)
-    tensorboard_log_path = os.path.join('tb_log', 'scheme2/finetune', name)
-    checkpoint_path = os.path.join('checkpoint', 'scheme2/finetune/cityD', name)
-
-    # 创建路径
-    os.makedirs(log_path, exist_ok=True)
-    os.makedirs(tensorboard_log_path, exist_ok=True)
-    os.makedirs(checkpoint_path, exist_ok=True)
-
-    # 设置日志记录，保存到指定的日志文件中
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        filename=os.path.join(log_path, f'{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.txt'),
-                        filemode='w')
-    # TensorBoard日志写入器，用于记录训练过程中的标量值
-    writer = SummaryWriter(tensorboard_log_path)
+    # 初始化 wandb
+    wandb.init(project="LPBERT", name="pretrainA-finetuneB", config=args)
+    wandb.run.name = name  # Set the run name
+    wandb.run.save()
 
     # 加载训练集
-    dataset_train = TrainSet(path_arr[3])
+    dataset_train = TrainSet(path_arr[1])
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -101,12 +89,12 @@ def finetune(args):
     model = LPBERT(args.layers_num, args.heads_num, args.embed_size).to(device)
     model.load_state_dict(torch.load(args.pretrained_model))
     
-    # 冻结部分参数，只微调输出层
+    # 冻结部分参数
     for name, param in model.named_parameters():
-        if 'transformer_encoder' in name:
-            param.requires_grad = False
-        else:
+        if 'transformer_encoder.transformer_encoder.layers.3' in name or 'ffn_layer' in name:
             param.requires_grad = True
+        else:
+            param.requires_grad = False
 
     model.train()
 
@@ -146,20 +134,30 @@ def finetune(args):
             optimizer.zero_grad()
 
             step = epoch_id * len(dataloader_train) + batch_id
-            writer.add_scalar('loss', loss.detach().item(), step)
+
+            # 使用 wandb 记录 loss
+            wandb.log({"loss": loss.detach().item(), "step": step})
+
         scheduler.step()
 
-        logging.info(f'epoch: {epoch_id}, loss: {loss.detach().item()}')
+         # 在每个 epoch 结束时记录当前的 loss
+        wandb.log({"epoch_loss": loss.detach().item(), "epoch": epoch_id})
 
-    torch.save(model.state_dict(), os.path.join(checkpoint_path, f'{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.pth'))
+        # 保存模型权重到 wandb
+        current_time = datetime.datetime.now()
+        model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}_epoch{epoch_id}.pth')
+        torch.save(model.state_dict(), model_save_path)
+        wandb.save(model_save_path)
+
+
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrained_model', type=str, default='./checkpoint/scheme2/batchsize64_epochs200_embedsize128_layersnum4_headsnum8_cuda0_lr2e-05_seed0/2024_08_21_09_38_46.pth')
+    parser.add_argument('--pretrained_model', type=str, default='./wandb/run-20240905_033613-m945d9b5/files/model_2024_09_06_14_56_22.pth')
     parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--epochs', type=int, default=20)  # 微调可以选择较少的epochs
+    parser.add_argument('--epochs', type=int, default=50)  # 微调可以选择较少的epochs
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--layers_num', type=int, default=4)
