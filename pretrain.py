@@ -80,9 +80,9 @@ def train(args):
     # current_time = datetime.datetime.now()
 
     # 初始化 wandb
-    # wandb.init(project="LPBERT", name="postembed_pretrain_cityABC", config=args)
-    # wandb.run.name = name  # Set the run name
-    # wandb.run.save()
+    wandb.init(project="LPBERT", name="postembed_pretrain_cityABC", config=args)
+    wandb.run.name = name  # Set the run name
+    wandb.run.save()
 
     # 加载训练集
     dataset_train = TrainSet(path_arr[:3])
@@ -133,19 +133,19 @@ def train(args):
             step = epoch_id * len(dataloader_train) + batch_id
 
             # 使用 wandb 记录 loss
-            # wandb.log({"loss": loss.detach().item(), "step": step})
+            wandb.log({"loss": loss.detach().item(), "step": step})
 
         # 调整学习率
         scheduler.step()
 
         # 在每个 epoch 结束时记录当前的 loss
-        # wandb.log({"epoch_loss": loss.detach().item(), "epoch": epoch_id})
+        wandb.log({"epoch_loss": loss.detach().item(), "epoch": epoch_id})
 
         # 保存模型权重到 wandb
-        # current_time = datetime.datetime.now()
-        # model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}_epoch{epoch_id+1}.pth')
-        # torch.save(model.state_dict(), model_save_path)
-        # wandb.save(model_save_path)
+        current_time = datetime.datetime.now()
+        model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}_epoch{epoch_id+1}.pth')
+        torch.save(model.state_dict(), model_save_path)
+        wandb.save(model_save_path)
 
 
 if __name__ == '__main__':
