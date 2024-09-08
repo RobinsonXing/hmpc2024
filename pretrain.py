@@ -42,6 +42,7 @@ def collate_fn(batch):
     input_x = [item['input_x'] for item in batch]
     input_y = [item['input_y'] for item in batch]
     time_delta = [item['time_delta'] for item in batch]
+    city = [item['city'] for item in batch]
     label_x = [item['label_x'] for item in batch]
     label_y = [item['label_y'] for item in batch]
     len_tensor = torch.tensor([item['len'] for item in batch])
@@ -52,6 +53,7 @@ def collate_fn(batch):
     input_x_padded = pad_sequence(input_x, batch_first=True, padding_value=0)
     input_y_padded = pad_sequence(input_y, batch_first=True, padding_value=0)
     time_delta_padded = pad_sequence(time_delta, batch_first=True, padding_value=0)
+    city_padded = pad_sequence(city, batch_first=True, padding_value=0)
     label_x_padded = pad_sequence(label_x, batch_first=True, padding_value=0)
     label_y_padded = pad_sequence(label_y, batch_first=True, padding_value=0)
 
@@ -62,6 +64,7 @@ def collate_fn(batch):
         'input_x': input_x_padded,
         'input_y': input_y_padded,
         'time_delta': time_delta_padded,
+        'city': city_padded,
         'label_x': label_x_padded,
         'label_y': label_y_padded,
         'len': len_tensor
