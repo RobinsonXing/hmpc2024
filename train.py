@@ -90,11 +90,11 @@ def train(args):
 
     # 设置日志文件名
     # name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
-    name = 'LPBERT-city_embed'
+    name = 'LPBERT-premebed-embedsize64'
     # current_time = datetime.datetime.now()
 
     # 初始化 wandb
-    wandb.init(project="LPBERT", name='city_embed', config=args)
+    wandb.init(project="LPBERT", name='preembed_embedsize64', config=args)
     wandb.run.name = name  # Set the run name
     wandb.run.save()
 
@@ -157,7 +157,7 @@ def train(args):
 
         # 保存模型权重到 wandb
         current_time = datetime.datetime.now()
-        model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.pth')
+        model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}_epoch{epoch_id}.pth')
         torch.save(model.state_dict(), model_save_path)
         wandb.save(model_save_path)
 
@@ -168,10 +168,10 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--num_workers', type=int, default=2)
-    parser.add_argument('--embed_size', type=int, default=128)
+    parser.add_argument('--embed_size', type=int, default=64)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
-    parser.add_argument('--cuda', type=int, default=2)
+    parser.add_argument('--cuda', type=int, default=0)
     parser.add_argument('--lr', type=float, default=2e-5)
     parser.add_argument('--seed', type=int, default=3704)
     args = parser.parse_args()
