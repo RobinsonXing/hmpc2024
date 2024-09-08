@@ -10,3 +10,5 @@
 /log
 /tb_log
 /wandb
+
+/checkpoint
