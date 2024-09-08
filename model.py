@@ -126,6 +126,17 @@ class EmbeddingLayer(nn.Module):
         return embed
 
 
+class TransformerEncoderModel(nn.Module):
+    def __init__(self, layers_num, heads_num, embed_size):
+        super(TransformerEncoderModel, self).__init__()
+
+        self.encoder_layer = nn.TransformerEncoderLayer(d_model=embed_size, nhead=heads_num)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer=self.encoder_layer, num_layers=layers_num)
+    def forward(self, input, src_key_padding_mask):
+        out = self.transformer_encoder(input, src_key_padding_mask=src_key_padding_mask)
+        return out
+
+
 class LPBERT(nn.Module):
     def __init__(self, layers_num, heads_num, embed_size, cityembed_size):
         super(LPBERT, self).__init__()
