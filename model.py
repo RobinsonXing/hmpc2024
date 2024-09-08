@@ -136,6 +136,26 @@ class TransformerEncoderModel(nn.Module):
         out = self.transformer_encoder(input, src_key_padding_mask=src_key_padding_mask)
         return out
 
+class FFNLayer(nn.Module):
+    def __init__(self, embed_size):
+        super(FFNLayer, self).__init__()
+
+        self.ffn1 = nn.Sequential(
+            nn.Linear(embed_size, 16),
+            nn.ReLU(),
+            nn.Linear(16, 200),
+        )
+        self.ffn2 = nn.Sequential(
+            nn.Linear(embed_size, 16),
+            nn.ReLU(),
+            nn.Linear(16, 200),
+        )
+    def forward(self, input):
+        output_x = self.ffn1(input)
+        output_y = self.ffn2(input)
+        output = torch.stack([output_x, output_y], dim=-2)
+        return output
+
 
 class LPBERT(nn.Module):
     def __init__(self, layers_num, heads_num, embed_size, cityembed_size):
