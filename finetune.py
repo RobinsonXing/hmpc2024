@@ -70,16 +70,16 @@ def finetune(args):
 
     # 设置日志文件名
     # name = f'finetune_batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
-    name = 'LPBERT-pretrainA-finetuneC'
+    name = 'LPBERT-pretrainA-finetuneD'
     current_time = datetime.datetime.now()
 
     # 初始化 wandb
-    wandb.init(project="LPBERT", name="pretrainA-finetuneC", config=args)
+    wandb.init(project="LPBERT", name="pretrainA-finetuneD", config=args)
     wandb.run.name = name  # Set the run name
     wandb.run.save()
 
     # 加载训练集
-    dataset_train = TrainSet(path_arr[2])
+    dataset_train = TrainSet(path_arr[3])
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU

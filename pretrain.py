@@ -82,7 +82,7 @@ def train(args):
     wandb.run.save()
 
     # 加载训练集
-    dataset_train = TrainSet(path_arr[0:2:2])
+    dataset_train = TrainSet(path_arr[0:3:2])
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
