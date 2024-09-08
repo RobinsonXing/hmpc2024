@@ -1,10 +1,3 @@
-######## 方案二 ########
-# 1.
-# 用城市A的数据做训练
-# 再用城市B或C或D的数据作微调
-#
-
-
 import os
 import argparse
 import logging
@@ -17,10 +10,11 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pad_sequence
-from torch.utils.tensorboard import SummaryWriter
+
+import wandb
 
 from dataset import *
-from model2 import *
+from model import *
 
 
 path_arr = [
@@ -32,7 +26,7 @@ path_arr = [
 
 
 # 设置随机种子以确保结果的可重复性
-def set_random_seed(seed=0):
+def set_random_seed(seed=3407):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -48,6 +42,7 @@ def collate_fn(batch):
     input_x = [item['input_x'] for item in batch]
     input_y = [item['input_y'] for item in batch]
     time_delta = [item['time_delta'] for item in batch]
+    city = [item['city'] for item in batch]
     label_x = [item['label_x'] for item in batch]
     label_y = [item['label_y'] for item in batch]
     len_tensor = torch.tensor([item['len'] for item in batch])
@@ -58,6 +53,7 @@ def collate_fn(batch):
     input_x_padded = pad_sequence(input_x, batch_first=True, padding_value=0)
     input_y_padded = pad_sequence(input_y, batch_first=True, padding_value=0)
     time_delta_padded = pad_sequence(time_delta, batch_first=True, padding_value=0)
+    city_padded = pad_sequence(city, batch_first=True, padding_value=0)
     label_x_padded = pad_sequence(label_x, batch_first=True, padding_value=0)
     label_y_padded = pad_sequence(label_y, batch_first=True, padding_value=0)
 
@@ -68,6 +64,7 @@ def collate_fn(batch):
         'input_x': input_x_padded,
         'input_y': input_y_padded,
         'time_delta': time_delta_padded,
+        'city': city_padded,
         'label_x': label_x_padded,
         'label_y': label_y_padded,
         'len': len_tensor
@@ -78,30 +75,17 @@ def collate_fn(batch):
 def train(args):
 
     # 设置日志文件名
-    name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
+    # name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
+    name = 'LPBERT'
     current_time = datetime.datetime.now()
 
-    # 设置存储日志文件的路径
-    log_path = os.path.join('log', 'scheme2', name)
-    tensorboard_log_path = os.path.join('tb_log', 'scheme2', name)
-    checkpoint_path = os.path.join('checkpoint', 'scheme2', name)
-
-    # 创建路径
-    os.makedirs(log_path, exist_ok=True)
-    os.makedirs(tensorboard_log_path, exist_ok=True)
-    os.makedirs(checkpoint_path, exist_ok=True)
-
-    # 设置日志记录，保存到指定的日志文件中
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        filename=os.path.join(log_path, f'{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.txt'),
-                        filemode='w')
-    #  TensorBoard日志写入器，用于记录训练过程中的标量值
-    writer = SummaryWriter(tensorboard_log_path)
+    # 初始化 wandb
+    wandb.init(project="LPBERT", name='preembed_embedsize64', config=args)
+    wandb.run.name = name  # Set the run name
+    wandb.run.save()
 
     # 加载训练集
-    dataset_train = TrainSet(path_arr[0])
+    dataset_train = TrainSet(path_arr)
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -128,9 +112,10 @@ def train(args):
             batch['label_x'] = batch['label_x'].to(device)
             batch['label_y'] = batch['label_y'].to(device)
             batch['len'] = batch['len'].to(device)
+            batch['city'] = batch['city'].to(device)
 
             # 将数据输入模型中得到输出
-            output = model(batch['d'], batch['t'], batch['input_x'], batch['input_y'], batch['time_delta'], batch['len'])
+            output = model(batch['d'], batch['t'], batch['input_x'], batch['input_y'], batch['time_delta'], batch['len'], batch['city'])
 
             # 将x和y堆叠成一个张量
             label = torch.stack((batch['label_x'], batch['label_y']), dim=-1)
@@ -146,26 +131,35 @@ def train(args):
             optimizer.zero_grad()
 
             step = epoch_id * len(dataloader_train) + batch_id
-            writer.add_scalar('loss', loss.detach().item(), step)
+
+            # 使用 wandb 记录 loss
+            wandb.log({"loss": loss.detach().item(), "step": step})
+
         scheduler.step()
 
-        logging.info(f'epoch: {epoch_id}, loss: {loss.detach().item()}')
+        # 在每个 epoch 结束时记录当前的 loss
+        wandb.log({"epoch_loss": loss.detach().item(), "epoch": epoch_id})
 
-    torch.save(model.state_dict(), os.path.join(checkpoint_path, f'{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.pth'))
+        # 保存模型权重到 wandb
+        current_time = datetime.datetime.now()
+        model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}_epoch{epoch_id}.pth')
+        torch.save(model.state_dict(), model_save_path)
+        wandb.save(model_save_path)
+
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--epochs', type=int, default=200)
+    parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--num_workers', type=int, default=2)
-    parser.add_argument('--embed_size', type=int, default=256)
+    parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
-    parser.add_argument('--cuda', type=int, default=1)
+    parser.add_argument('--cuda', type=int, default=0)
     parser.add_argument('--lr', type=float, default=2e-5)
-    parser.add_argument('--seed', type=int, default=3407)
+    parser.add_argument('--seed', type=int, default=0)
     args = parser.parse_args()
 
     set_random_seed(args.seed)
