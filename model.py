@@ -127,11 +127,11 @@ class EmbeddingLayer(nn.Module):
 
 
 class LPBERT(nn.Module):
-    def __init__(self, layers_num, heads_num, embed_size):
+    def __init__(self, layers_num, heads_num, embed_size, cityembed_size):
         super(LPBERT, self).__init__()
 
         self.embedding_layer = EmbeddingLayer(embed_size)
-        self.city_embedding = CityEmbedding(embed_size)  # 将 city embedding 放到输出层
+        self.city_embedding = CityEmbedding(cityembed_size)  # 将 city embedding 放到输出层
         self.transformer_encoder = TransformerEncoderModel(layers_num, heads_num, embed_size)
         self.ffn_layer = FFNLayer(embed_size)
 

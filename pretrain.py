@@ -73,23 +73,23 @@ def train(args):
 
     # 设置日志文件名
     # name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
-    name = 'LPBERT-pretrain-cityB'
+    name = 'LPBERT-postembedABC'
     # current_time = datetime.datetime.now()
 
     # 初始化 wandb
-    wandb.init(project="LPBERT", name="postembed_pretrain_cityABC", config=args)
-    wandb.run.name = name  # Set the run name
-    wandb.run.save()
+    # wandb.init(project="LPBERT", name="postembed_pretrain_cityABC", config=args)
+    # wandb.run.name = name  # Set the run name
+    # wandb.run.save()
 
     # 加载训练集
-    dataset_train = TrainSet(path_arr[0])
+    dataset_train = TrainSet(path_arr[:3])
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
     device = torch.device(f'cuda:{args.cuda}')
 
     # 实例化LP-BERT模型，并加载至GPU上
-    model = LPBERT(args.layers_num, args.heads_num, args.embed_size).to(device)
+    model = LPBERT(args.layers_num, args.heads_num, args.embed_size, args.cityembed_size).to(device)
 
     # 指定Adam优化器、CosineAnnealingLR学习率调度器、交叉熵损失函数
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
@@ -106,12 +106,13 @@ def train(args):
             batch['input_x'] = batch['input_x'].to(device)
             batch['input_y'] = batch['input_y'].to(device)
             batch['time_delta'] = batch['time_delta'].to(device)
+            batch['city'] = batch['city'].to(device)
             batch['label_x'] = batch['label_x'].to(device)
             batch['label_y'] = batch['label_y'].to(device)
             batch['len'] = batch['len'].to(device)
 
             # 将数据输入模型中得到输出
-            output = model(batch['d'], batch['t'], batch['input_x'], batch['input_y'], batch['time_delta'], batch['len'])
+            output = model(batch['d'], batch['t'], batch['input_x'], batch['input_y'], batch['time_delta'], batch['len'], batch['city'])
 
             # 将x和y堆叠成一个张量
             label = torch.stack((batch['label_x'], batch['label_y']), dim=-1)
@@ -135,13 +136,13 @@ def train(args):
         scheduler.step()
 
         # 在每个 epoch 结束时记录当前的 loss
-        wandb.log({"epoch_loss": loss.detach().item(), "epoch": epoch_id})
+        # wandb.log({"epoch_loss": loss.detach().item(), "epoch": epoch_id})
 
         # 保存模型权重到 wandb
-        current_time = datetime.datetime.now()
-        model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}_epoch{epoch_id+1}.pth')
-        torch.save(model.state_dict(), model_save_path)
-        wandb.save(model_save_path)
+        # current_time = datetime.datetime.now()
+        # model_save_path = os.path.join(wandb.run.dir, f'model_{current_time.strftime("%Y_%m_%d_%H_%M_%S")}_epoch{epoch_id+1}.pth')
+        # torch.save(model.state_dict(), model_save_path)
+        # wandb.save(model_save_path)
 
 
 if __name__ == '__main__':
@@ -151,6 +152,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
+    parser.add_argument('--cityembed_size', type=int, default=4)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
     parser.add_argument('--cuda', type=int, default=1)
