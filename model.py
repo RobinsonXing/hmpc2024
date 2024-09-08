@@ -164,7 +164,7 @@ class LPBERT(nn.Module):
         self.embedding_layer = EmbeddingLayer(embed_size)
         self.city_embedding = CityEmbedding(cityembed_size)  # 将 city embedding 放到输出层
         self.transformer_encoder = TransformerEncoderModel(layers_num, heads_num, embed_size)
-        self.ffn_layer = FFNLayer(embed_size)
+        self.ffn_layer = FFNLayer(embed_size + cityembed_size)
 
     def forward(self, day, time, location_x, location_y, timedelta, len, city):
         embed = self.embedding_layer(day, time, location_x, location_y, timedelta)
@@ -179,7 +179,9 @@ class LPBERT(nn.Module):
 
         # 获取 city embedding 并与 transformer 输出连接
         city_embed = self.city_embedding(city)
-        city_embed = city_embed.unsqueeze(1).expand(-1, transformer_encoder_output.shape[1], -1)
+
+        # print(f"city_embed shape: {city_embed.shape}")
+        # print(f"transformer_encoder_output shape: {transformer_encoder_output.shape}")
 
         # 将 city embedding 与 transformer 输出连接
         transformer_encoder_output = torch.cat([transformer_encoder_output, city_embed], dim=-1)

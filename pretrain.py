@@ -158,7 +158,7 @@ if __name__ == '__main__':
     parser.add_argument('--cityembed_size', type=int, default=4)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
-    parser.add_argument('--cuda', type=int, default=1)
+    parser.add_argument('--cuda', type=int, default=2)
     parser.add_argument('--lr', type=float, default=2e-5)
     parser.add_argument('--seed', type=int, default=3407)
     args = parser.parse_args()
