@@ -18,7 +18,7 @@ path_arr = [
 def Test(args):
 
     # 设置结果的存储路径
-    result_path = 'test/scheme1'
+    result_path = 'inference'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
