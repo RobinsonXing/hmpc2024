@@ -7,7 +7,7 @@ from tqdm import tqdm
 import torch
 from torch.utils.data import DataLoader
 from dataset import *
-from model2 import *
+from model import *
 
 path_arr = [
     './dataset/cityA_groundtruthdata.csv.gz',
@@ -19,7 +19,7 @@ path_arr = [
 def Validation(args):
 
     # 设置结果的存储路径
-    result_path = f'validation/scheme2/zeroshot/cityD'
+    result_path = f'validation/post_embed/cityD'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
@@ -30,7 +30,7 @@ def Validation(args):
     device = torch.device(f'cuda:{args.cuda}')
 
     # 实例化LP-BERT模型加载至GPU上，并加载预训练模型的参数
-    model = LPBERT(args.layers_num, args.heads_num, args.embed_size).to(device)
+    model = LPBERT(args.layers_num, args.heads_num, args.embed_size, args.city_embed).to(device)
     model.load_state_dict(torch.load(args.pth_file, map_location=device))
 
     # 初始化
@@ -49,12 +49,13 @@ def Validation(args):
             data['input_x'] = data['input_x'].to(device)
             data['input_y'] = data['input_y'].to(device)
             data['time_delta'] = data['time_delta'].to(device)
+            data['city'] = data['city'].to(device)
             data['label_x'] = data['label_x'].to(device)
             data['label_y'] = data['label_y'].to(device)
             data['len'] = data['len'].to(device)
 
             # 获取推测，并将标签堆叠成张量
-            output = model(data['d'], data['t'], data['input_x'], data['input_y'], data['time_delta'], data['len'])
+            output = model(data['d'], data['t'], data['input_x'], data['input_y'], data['time_delta'], data['len'], data['city'])
             label = torch.stack((data['label_x'], data['label_y']), dim=-1)
 
             # 处理输出
@@ -91,9 +92,10 @@ def Validation(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pth_file', type=str, default='./checkpoint/scheme2/batchsize64_epochs200_embedsize128_layersnum4_headsnum8_cuda0_lr2e-05_seed0/2024_08_21_09_38_46.pth')     # 改为训练完成的模型的存储地址
+    parser.add_argument('--pth_file', type=str, default='/home/xingtong/Documents/hmpc2024/wandb/run-20240908_111320-yx09xk9o/files/model_2024_09_11_01_09_13_epoch93.pth')     # 改为训练完成的模型的存储地址
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
+    parser.add_argument('--city_embed', type=int, default=4)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
     parser.add_argument('--cuda', type=int, default=0)
