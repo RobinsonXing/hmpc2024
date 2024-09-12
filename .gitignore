@@ -9,4 +9,5 @@
 /__pycache__
 /log
 /tb_log
+/checkpoint
 /wandb
