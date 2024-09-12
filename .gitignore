@@ -1,3 +1,14 @@
-# 忽略所有的 .csv 文件
+# 数据集
 *.csv
 *.csv.gz
+
+*.json
+/checkpoint
+/validation
+/inference
+
+/__pycache__
+/log
+/tb_log
+/wandb
+/checkpoint
