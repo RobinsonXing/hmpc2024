@@ -3,12 +3,19 @@
 *.csv.gz
 
 *.json
+<<<<<<< HEAD
 /checkpoint
+=======
+>>>>>>> 2c3db6e8811e9537d6bd8e6848b410e5d2d2ddb7
 /validation
 /inference
 
 /__pycache__
 /log
 /tb_log
+<<<<<<< HEAD
 /wandb
 /checkpoint
+=======
+/checkpoint
+>>>>>>> 2c3db6e8811e9537d6bd8e6848b410e5d2d2ddb7
