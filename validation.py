@@ -7,7 +7,7 @@ from tqdm import tqdm
 import torch
 from torch.utils.data import DataLoader
 from dataset import *
-from model2 import *
+from model import *
 
 path_arr = [
     './dataset/cityA_groundtruthdata.csv.gz',
@@ -19,7 +19,7 @@ path_arr = [
 def Validation(args):
 
     # 设置结果的存储路径
-    result_path = f'validation/scheme2/zeroshot/cityD'
+    result_path = f'validation/zeroshot/cityD'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
@@ -91,7 +91,7 @@ def Validation(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pth_file', type=str, default='./checkpoint/scheme2/batchsize64_epochs200_embedsize128_layersnum4_headsnum8_cuda0_lr2e-05_seed0/2024_08_21_09_38_46.pth')     # 改为训练完成的模型的存储地址
+    parser.add_argument('--pth_file', type=str, default='/home/xingtong/Documents/hmpc2024/wandb/run-20240905_033613-m945d9b5/files/model_2024_09_07_02_40_14.pth')     # 改为训练完成的模型的存储地址
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--layers_num', type=int, default=4)
