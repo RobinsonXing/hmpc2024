@@ -92,7 +92,7 @@ def Validation(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pth_file', type=str, default='./wandb/run-20240905_033459-cxfq8drh/files/model_2024_09_06_22_11_53.pth')
+    parser.add_argument('--pth_file', type=str, default='/home/xingtong/Documents/hmpc2024/wandb/run-20240905_033459-cxfq8drh/files/model_2024_09_08_00_36_49.pth')
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--layers_num', type=int, default=4)
