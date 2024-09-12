@@ -19,11 +19,11 @@ path_arr = [
 def Validation(args):
 
     # 设置结果的存储路径
-    result_path = 'validation/pre_embed'
+    result_path = 'validation/pre_embed/cityD'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
-    dataset_val = ValidationSet(path_arr[0])
+    dataset_val = ValidationSet(path_arr[3])
     dataloader_val = DataLoader(dataset_val, batch_size=1, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -92,7 +92,7 @@ def Validation(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pth_file', type=str, default='./checkpoint/scheme1/batchsize64_epochs100_embedsize128_layersnum4_headsnum8_cuda0_lr2e-05_seed0/2024_08_17_16_41_16.pth')
+    parser.add_argument('--pth_file', type=str, default='./wandb/run-20240905_033459-cxfq8drh/files/model_2024_09_06_22_11_53.pth')
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--layers_num', type=int, default=4)
