@@ -19,11 +19,11 @@ path_arr = [
 def Validation(args):
 
     # 设置结果的存储路径
-    result_path = 'validation/scheme1/cityD'
+    result_path = 'validation/pre_embed'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
-    dataset_val = ValidationSet(path_arr[3])
+    dataset_val = ValidationSet(path_arr[0])
     dataloader_val = DataLoader(dataset_val, batch_size=1, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
