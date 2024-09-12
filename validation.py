@@ -19,7 +19,7 @@ path_arr = [
 def Validation(args):
 
     # 设置结果的存储路径
-    result_path = f'validation/post_embed/cityD'
+    result_path = f'validation/post_embed_v1/cityD'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
@@ -92,12 +92,12 @@ def Validation(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pth_file', type=str, default='/home/xingtong/Documents/hmpc2024/wandb/run-20240908_111320-yx09xk9o/files/model_2024_09_11_01_09_13_epoch93.pth')     # 改为训练完成的模型的存储地址
+    parser.add_argument('--pth_file', type=str, default='/home/xingtong/Documents/hmpc2024/wandb/run-20240909_175704-f1yniho0/files/model_2024_09_12_10_25_29_epoch42.pth')     # 改为训练完成的模型的存储地址
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--city_embed', type=int, default=4)
-    parser.add_argument('--layers_num', type=int, default=4)
-    parser.add_argument('--heads_num', type=int, default=8)
+    parser.add_argument('--layers_num', type=int, default=6)
+    parser.add_argument('--heads_num', type=int, default=16)
     parser.add_argument('--cuda', type=int, default=0)
     args = parser.parse_args()
 
