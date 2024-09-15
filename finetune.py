@@ -40,6 +40,7 @@ def collate_fn(batch):
     input_x = [item['input_x'] for item in batch]
     input_y = [item['input_y'] for item in batch]
     time_delta = [item['time_delta'] for item in batch]
+    city = [item['city'] for item in batch]
     label_x = [item['label_x'] for item in batch]
     label_y = [item['label_y'] for item in batch]
     len_tensor = torch.tensor([item['len'] for item in batch])
@@ -50,6 +51,7 @@ def collate_fn(batch):
     input_x_padded = pad_sequence(input_x, batch_first=True, padding_value=0)
     input_y_padded = pad_sequence(input_y, batch_first=True, padding_value=0)
     time_delta_padded = pad_sequence(time_delta, batch_first=True, padding_value=0)
+    city_padded = pad_sequence(city, batch_first=True, padding_value=0)
     label_x_padded = pad_sequence(label_x, batch_first=True, padding_value=0)
     label_y_padded = pad_sequence(label_y, batch_first=True, padding_value=0)
 
@@ -60,6 +62,7 @@ def collate_fn(batch):
         'input_x': input_x_padded,
         'input_y': input_y_padded,
         'time_delta': time_delta_padded,
+        'city': city_padded,
         'label_x': label_x_padded,
         'label_y': label_y_padded,
         'len': len_tensor
@@ -70,11 +73,11 @@ def finetune(args):
 
     # 设置日志文件名
     # name = f'finetune_batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
-    name = 'LPBERT-pretrainA-finetuneB'
+    name = 'LPBERT-postembedAC-finetuneB'
     current_time = datetime.datetime.now()
 
     # 初始化 wandb
-    wandb.init(project="LPBERT", name="pretrainA-finetuneB", config=args)
+    wandb.init(project="LPBERT", name=name, config=args)
     wandb.run.name = name  # Set the run name
     wandb.run.save()
 
@@ -86,7 +89,7 @@ def finetune(args):
     device = torch.device(f'cuda:{args.cuda}')
 
     # 实例化LP-BERT模型，并加载至GPU上
-    model = LPBERT(args.layers_num, args.heads_num, args.embed_size).to(device)
+    model = LPBERT(args.layers_num, args.heads_num, args.embed_size, args.cityembed_size).to(device)
     model.load_state_dict(torch.load(args.pretrained_model))
     
     # 冻结部分参数
@@ -113,12 +116,13 @@ def finetune(args):
             batch['input_x'] = batch['input_x'].to(device)
             batch['input_y'] = batch['input_y'].to(device)
             batch['time_delta'] = batch['time_delta'].to(device)
+            batch['city'] = batch['city'].to(device)
             batch['label_x'] = batch['label_x'].to(device)
             batch['label_y'] = batch['label_y'].to(device)
             batch['len'] = batch['len'].to(device)
 
             # 将数据输入模型中得到输出
-            output = model(batch['d'], batch['t'], batch['input_x'], batch['input_y'], batch['time_delta'], batch['len'])
+            output = model(batch['d'], batch['t'], batch['input_x'], batch['input_y'], batch['time_delta'], batch['len'], batch['city'])
 
             # 将x和y堆叠成一个张量
             label = torch.stack((batch['label_x'], batch['label_y']), dim=-1)
@@ -155,14 +159,15 @@ def finetune(args):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrained_model', type=str, default='./wandb/run-20240905_033613-m945d9b5/files/model_2024_09_06_14_56_22.pth')
+    parser.add_argument('--pretrained_model', type=str, default='/home/xingtong/Documents/hmpc2024/wandb/run-20240912_184931-2x2oz2ef/files/model_2024_09_14_23_44_04_epoch93.pth')
     parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--epochs', type=int, default=50)  # 微调可以选择较少的epochs
+    parser.add_argument('--epochs', type=int, default=100)  # 微调可以选择较少的epochs
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
+    parser.add_argument('--cityembed_size', type=int, default=4)
     parser.add_argument('--layers_num', type=int, default=4)
     parser.add_argument('--heads_num', type=int, default=8)
-    parser.add_argument('--cuda', type=int, default=1)
+    parser.add_argument('--cuda', type=int, default=2)
     parser.add_argument('--lr', type=float, default=2e-5)
     parser.add_argument('--seed', type=int, default=3704)
     args = parser.parse_args()
