@@ -73,7 +73,7 @@ def finetune(args):
 
     # 设置日志文件名
     # name = f'finetune_batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
-    name = 'LPBERT-postembedAC-finetuneB'
+    name = 'LPBERT-postembedAB-finetuneC'
     current_time = datetime.datetime.now()
 
     # 初始化 wandb
@@ -82,7 +82,7 @@ def finetune(args):
     wandb.run.save()
 
     # 加载训练集
-    dataset_train = TrainSet(path_arr[1])
+    dataset_train = TrainSet(path_arr[2])
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -159,7 +159,7 @@ def finetune(args):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrained_model', type=str, default='/home/xingtong/Documents/hmpc2024/wandb/run-20240912_184931-2x2oz2ef/files/model_2024_09_14_23_44_04_epoch93.pth')
+    parser.add_argument('--pretrained_model', type=str, default='/home/xingtong/Documents/hmpc2024/wandb/run-20240912_185030-ls2llvll/files/model_2024_09_15_01_56_36_epoch90.pth')
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--epochs', type=int, default=100)  # 微调可以选择较少的epochs
     parser.add_argument('--num_workers', type=int, default=2)
