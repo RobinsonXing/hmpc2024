@@ -19,7 +19,7 @@ path_arr = [
 def Validation(args):
 
     # 设置结果的存储路径
-    result_path = f'validation/postembedAC_finetuneB/cityD'
+    result_path = f'validation/postembedAB_finetuneC/cityD'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
@@ -92,7 +92,7 @@ def Validation(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pth_file', type=str, default='./wandb/run-20240915_035201-jb5cez11/files/model_2024_09_15_07_16_09_epoch63.pth')     # 改为训练完成的模型的存储地址
+    parser.add_argument('--pth_file', type=str, default='./wandb/run-20240915_111710-eeoewuwr/files/model_2024_09_15_11_58_15_epoch16.pth')     # 改为训练完成的模型的存储地址
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--city_embed', type=int, default=4)
