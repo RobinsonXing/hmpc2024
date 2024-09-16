@@ -74,8 +74,7 @@ def finetune(args):
     # 设置日志文件名
     # name = f'finetune_batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
     name = 'LPBERT-postembedAB-finetuneC'
-    current_time = datetime.datetime.now()
-
+    current_time = datetime.datetime.now()R
     # 初始化 wandb
     wandb.init(project="LPBERT", name=name, config=args)
     wandb.run.name = name  # Set the run name
