@@ -19,11 +19,11 @@ path_arr = [
 def Validation(args):
 
     # 设置结果的存储路径
-    result_path = f'validation/postembedABCD/cityD'
+    result_path = f'validation/postembedABC_plus/cityA'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
-    dataset_val = ValidationSet(path_arr[3])
+    dataset_val = ValidationSet(path_arr[0])
     dataloader_val = DataLoader(dataset_val, batch_size=1, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -92,12 +92,12 @@ def Validation(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pth_file', type=str, default='./wandb/run-20240915_111414-jw4v17h2/files/model_2024_09_18_09_28_41_epoch98.pth')     # 改为训练完成的模型的存储地址
+    parser.add_argument('--pth_file', type=str, default='./wandb/run-20240913_035413-mf7p34j1/files/model_2024_09_18_19_28_42_epoch92.pth')     # 改为训练完成的模型的存储地址
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--city_embed', type=int, default=4)
-    parser.add_argument('--layers_num', type=int, default=4)
-    parser.add_argument('--heads_num', type=int, default=8)
+    parser.add_argument('--layers_num', type=int, default=6)
+    parser.add_argument('--heads_num', type=int, default=16)
     parser.add_argument('--cuda', type=int, default=1)
     args = parser.parse_args()
 

@@ -1,6 +1,6 @@
 import os
 import argparse
-import json
+import csv
 import datetime
 from tqdm import tqdm
 
@@ -19,11 +19,12 @@ path_arr = [
 def Inference(args):
 
     # 设置结果的存储路径
-    result_path = 'inference/postembedABCD/cityB'
+    result_path = 'inference/postembedABC/'
+    result_name = 'RobinsonXing_cityD_humob.csv'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
-    dataset_test = TestSet(path_arr[1])
+    dataset_test = TestSet(path_arr[3])
     dataloader_test = DataLoader(dataset_test, batch_size=1, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -34,8 +35,7 @@ def Inference(args):
     model.load_state_dict(torch.load(args.pth_file, map_location=device))
 
     # 初始化
-    result = dict()
-    result['generated'] = []
+    results = []
 
     # 模型验证
     model.eval() # 评估模式
@@ -43,6 +43,7 @@ def Inference(args):
         for data in tqdm(dataloader_test):
 
             # 将数据加载到GPU上
+            data['uid'] = data['uid'].to(device)
             data['d'] = data['d'].to(device)
             data['t'] = data['t'].to(device)
             data['input_x'] = data['input_x'].to(device)
@@ -70,20 +71,28 @@ def Inference(args):
 
             # 生成预测结果
             pred = torch.stack(pred)
-            generated = torch.cat((data['d'][pred_mask].unsqueeze(-1)-1, data['t'][pred_mask].unsqueeze(-1)-1, pred+1), dim=-1).cpu().tolist()
+            generated = torch.cat((
+                data['uid'][pred_mask].unsqueeze(-1),
+                data['d'][pred_mask].unsqueeze(-1)-1, 
+                data['t'][pred_mask].unsqueeze(-1)-1, 
+                pred+1), dim=-1).cpu().tolist()
             generated = [tuple(x) for x in generated]
             
-            result['generated'].append(generated)
+            # 添加到结果列表
+            results.extend(generated)
 
     # 保存结果
-    current_time = datetime.datetime.now()
-    with open(os.path.join(result_path, f'{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.json'), 'w') as file:
-        json.dump(result, file)
+    # current_time = datetime.datetime.now()
+    csv_file_path = os.path.join(result_path, result_name)
+    with open(csv_file_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['uid', 'd', 't', 'x', 'y'])
+        writer.writerows(results)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pth_file', type=str, default='./wandb/run-20240915_111414-jw4v17h2/files/model_2024_09_18_09_28_41_epoch98.pth')     # 改为训练完成的模型的存储地址
+    parser.add_argument('--pth_file', type=str, default='./wandb/run-20240908_111320-yx09xk9o/files/model_2024_09_11_00_29_43_epoch92.pth')     # 改为训练完成的模型的存储地址
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--city_embed', type=int, default=4)

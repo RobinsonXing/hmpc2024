@@ -113,7 +113,7 @@ class TrainSet(Dataset):
 
 class ValidationSet(Dataset):
     """剔除待预测用户，并保留后五分之一作验证集"""
-    def __init__(self, path_array):
+    def __init__(self, path_array, is_100val=False):
 
         # 初始化
         self.d_array = []
@@ -141,11 +141,11 @@ class ValidationSet(Dataset):
                 traj_df = traj_df[traj_df['uid'] < len(pd.unique(traj_df['uid'])) - 3000]
             traj_df = traj_df[traj_df['uid'] >= len(pd.unique(traj_df['uid'])) * 4 / 5]
 
-            # # 获取前 100 个用户的唯一 ID（按照数据出现的顺序）
-            # first_100_uids = traj_df['uid'].unique()[:100]
-            # # 筛选数据，保留前 100 个用户的数据
-            # traj_df = traj_df[traj_df['uid'].isin(first_100_uids)]
-
+            if is_100val:
+                # 获取前 100 个用户的唯一 ID（按照数据出现的顺序）
+                first_100_uids = traj_df['uid'].unique()[:100]
+                # 筛选数据，保留前 100 个用户的数据
+                traj_df = traj_df[traj_df['uid'].isin(first_100_uids)]
 
             for _, traj in tqdm(traj_df.groupby('uid')):
 
