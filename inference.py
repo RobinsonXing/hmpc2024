@@ -51,7 +51,7 @@ def Inference(args):
             data['city'] = data['city'].to(device)
             data['len'] = data['len'].to(device)
 
-            # 获取推测，并将标签堆叠成张量
+            # 获取推测
             output = model(data['d'], data['t'], data['input_x'], data['input_y'], data['time_delta'], data['len'], data['city'])
 
             # 处理输出
