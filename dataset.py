@@ -116,6 +116,7 @@ class ValidationSet(Dataset):
     def __init__(self, path_array, is_100val=False):
 
         # 初始化
+        self.uid_array = []
         self.d_array = []
         self.t_array = []
         self.input_x_array = []
@@ -147,7 +148,7 @@ class ValidationSet(Dataset):
                 # 筛选数据，保留前 100 个用户的数据
                 traj_df = traj_df[traj_df['uid'].isin(first_100_uids)]
 
-            for _, traj in tqdm(traj_df.groupby('uid')):
+            for uid, traj in tqdm(traj_df.groupby('uid')):
 
                 # 全部转换为numpy数组
                 d = traj['d'].to_numpy()
@@ -158,6 +159,7 @@ class ValidationSet(Dataset):
                                         (traj['d'].to_numpy()[:-1] * 48 + traj['t'].to_numpy()[:-1]), 0, 0)
                 time_delta[time_delta > 47] = 47
                 city = np.full(len(d), city_code, dtype=int)
+                uids = np.full(len(d), uid, dtype=int)
                 label_x = traj['x'].to_numpy()
                 label_y = traj['y'].to_numpy()
 
@@ -169,6 +171,7 @@ class ValidationSet(Dataset):
                 input_y[need_mask_idx] = 201
 
                 # 将所有uid分组整合到一起并保存
+                self.uid_array.append(uids)
                 self.d_array.append(d + 1)  # 1-75; 0:<pad>
                 self.t_array.append(t + 1)  # 1-48; 0:<pad>
                 self.input_x_array.append(input_x)  # 1-200; 0:<pad>; 201:<mask>
@@ -194,6 +197,7 @@ class ValidationSet(Dataset):
         return len(self.d_array)
     
     def __getitem__(self, index):
+        uid = torch.tensor(self.uid_array[index])
         d = torch.tensor(self.d_array[index])
         t = torch.tensor(self.t_array[index])
         input_x = torch.tensor(self.input_x_array[index])
@@ -204,6 +208,7 @@ class ValidationSet(Dataset):
         label_y = torch.tensor(self.label_y_array[index])
         len = torch.tensor(self.len_array[index])
         return {
+            'uid': uid,
             'd': d,
             't': t,
             'input_x': input_x,

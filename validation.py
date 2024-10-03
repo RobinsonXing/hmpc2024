@@ -19,11 +19,13 @@ path_arr = [
 def Validation(args):
 
     # 设置结果的存储路径
+    current_time = datetime.datetime.now()
     result_path = f'validation/postembedABC_plus/cityD'
+    result_name = f'{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.json'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
-    dataset_val = ValidationSet(path_arr[3])
+    dataset_val = ValidationSet(path_arr[1])
     dataloader_val = DataLoader(dataset_val, batch_size=1, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -74,20 +76,24 @@ def Validation(args):
 
             # 生成预测结果
             pred = torch.stack(pred)
-            generated = torch.cat((data['d'][pred_mask].unsqueeze(-1)-1, data['t'][pred_mask].unsqueeze(-1)-1, pred+1), dim=-1).cpu().tolist()
+            generated = torch.cat((data['d'][pred_mask].unsqueeze(-1)-1, 
+                                   data['t'][pred_mask].unsqueeze(-1)-1, 
+                                   pred+1), dim=-1).cpu().tolist()
             generated = [tuple(x) for x in generated]
 
             # 生成参考结果（标签）
-            reference = torch.cat((data['d'][pred_mask].unsqueeze(-1)-1, data['t'][pred_mask].unsqueeze(-1)-1, label[pred_mask]+1), dim=-1).cpu().tolist()
+            reference = torch.cat((data['d'][pred_mask].unsqueeze(-1)-1, 
+                                   data['t'][pred_mask].unsqueeze(-1)-1, 
+                                   label[pred_mask]+1), dim=-1).cpu().tolist()
             reference = [tuple(x) for x in reference]
             
             result['generated'].append(generated)
             result['reference'].append(reference)
 
     # 保存结果
-    current_time = datetime.datetime.now()
-    with open(os.path.join(result_path, f'{current_time.strftime("%Y_%m_%d_%H_%M_%S")}.json'), 'w') as file:
+    with open(os.path.join(result_path, result_name, 'w')) as file:
         json.dump(result, file)
+
 
 
 if __name__ == '__main__':
