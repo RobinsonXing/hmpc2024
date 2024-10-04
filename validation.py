@@ -19,11 +19,11 @@ def Validation(args):
 
     # 设置结果的存储路径
     result_path = f'validation/100users_test'
-    result_name = f'cityD.json'
+    result_name = f'cityC.json'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
-    dataset_val = ValidationSet(path_arr[3], is_100val=True)
+    dataset_val = ValidationSet(path_arr[2], is_100val=True)
     dataloader_val = DataLoader(dataset_val, batch_size=1, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
