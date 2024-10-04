@@ -1,8 +1,10 @@
 import os
 import argparse
 import csv
-import datetime
+import wandb
+import time
 from tqdm import tqdm
+
 
 import torch
 from torch.utils.data import DataLoader
@@ -18,14 +20,19 @@ path_arr = [
 
 def Inference(args):
 
+    # 初始化 wandb
+    name = 'LPBERT-postembedABCD_inference_testB'
+    wandb.init(project="LPBERT", name=name, config=args)
+    wandb.run.name = name  # Set the run name
+    wandb.run.save()
+
     # 设置结果的存储路径
     result_path = 'inference/postembedABC/'
     result_name = 'RobinsonXing_cityD_humob_valid100users.csv'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
-    # dataset_test = TestSet(path_arr[3])
-    dataset_test = ValidationSet(path_arr[3], is_100val=True)
+    dataset_test = TestSet(path_arr[1])
     dataloader_test = DataLoader(dataset_test, batch_size=1, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -39,6 +46,7 @@ def Inference(args):
     results = []
 
     # 模型验证
+    start_time = time.time()
     model.eval() # 评估模式
     with torch.no_grad():
         for data in tqdm(dataloader_test):
@@ -81,19 +89,22 @@ def Inference(args):
             
             # 添加到结果列表
             results.extend(generated)
+    
+    end_time = time.time()
+    time_delta = end_time - start_time
+    print(f'average inference time :{time_delta / 3000}')
 
     # 保存结果
-    # current_time = datetime.datetime.now()
-    csv_file_path = os.path.join(result_path, result_name)
-    with open(csv_file_path, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['uid', 'd', 't', 'x', 'y'])
-        writer.writerows(results)
+    # csv_file_path = os.path.join(result_path, result_name)
+    # with open(csv_file_path, mode='w', newline='') as file:
+    #     writer = csv.writer(file)
+    #     writer.writerow(['uid', 'd', 't', 'x', 'y'])
+    #     writer.writerows(results)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pth_file', type=str, default='./wandb/run-20240908_111320-yx09xk9o/files/model_2024_09_11_00_29_43_epoch92.pth')     # 改为训练完成的模型的存储地址
+    parser.add_argument('--pth_file', type=str, default='./wandb/run-20240915_111414-jw4v17h2/files/model_2024_09_18_09_28_41_epoch98.pth')     # 改为训练完成的模型的存储地址
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--city_embed', type=int, default=4)

@@ -76,7 +76,7 @@ def train(args):
 
     # 设置日志文件名
     # name = f'batchsize{args.batch_size}_epochs{args.epochs}_embedsize{args.embed_size}_layersnum{args.layers_num}_headsnum{args.heads_num}_cuda{args.cuda}_lr{args.lr}_seed{args.seed}'
-    name = 'LPBERT-postembedABCD_plus'
+    name = 'LPBERT-postembedABCD_test'
     # current_time = datetime.datetime.now()
 
     # 初始化 wandb
@@ -156,8 +156,8 @@ if __name__ == '__main__':
     parser.add_argument('--num_workers', type=int, default=2)
     parser.add_argument('--embed_size', type=int, default=128)
     parser.add_argument('--cityembed_size', type=int, default=4)
-    parser.add_argument('--layers_num', type=int, default=8)
-    parser.add_argument('--heads_num', type=int, default=16)
+    parser.add_argument('--layers_num', type=int, default=4)
+    parser.add_argument('--heads_num', type=int, default=8)
     parser.add_argument('--cuda', type=int, default=0)
     parser.add_argument('--lr', type=float, default=2e-5)
     parser.add_argument('--seed', type=int, default=3407)
