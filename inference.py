@@ -21,10 +21,10 @@ path_arr = [
 def Inference(args):
 
     # 初始化 wandb
-    name = 'LPBERT-postembedABCD_inference_testB'
-    wandb.init(project="LPBERT", name=name, config=args)
-    wandb.run.name = name  # Set the run name
-    wandb.run.save()
+    # name = 'LPBERT-postembedABCD_inference_testB'
+    # wandb.init(project="LPBERT", name=name, config=args)
+    # wandb.run.name = name  # Set the run name
+    # wandb.run.save()
 
     # 设置结果的存储路径
     result_path = 'inference/postembedABC/'
@@ -32,7 +32,8 @@ def Inference(args):
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
-    dataset_test = TestSet(path_arr[1])
+    # dataset_test = TestSet(path_arr[1])
+    dataset_test = ValidationSet(path_arr[1], is_100val=True)
     dataloader_test = DataLoader(dataset_test, batch_size=1, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -77,6 +78,8 @@ def Inference(args):
 
                 pred.append(torch.argmax(output[step], dim=-1))
                 pre_x, pre_y = pred[-1][0].item(), pred[-1][1].item()
+            
+            origin = torch.cat(())
 
             # 生成预测结果
             pred = torch.stack(pred)
@@ -95,11 +98,11 @@ def Inference(args):
     print(f'average inference time :{time_delta / 3000}')
 
     # 保存结果
-    # csv_file_path = os.path.join(result_path, result_name)
-    # with open(csv_file_path, mode='w', newline='') as file:
-    #     writer = csv.writer(file)
-    #     writer.writerow(['uid', 'd', 't', 'x', 'y'])
-    #     writer.writerows(results)
+    csv_file_path = os.path.join(result_path, result_name)
+    with open(csv_file_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['uid', 'd', 't', 'x', 'y'])
+        writer.writerows(results)
 
 
 if __name__ == '__main__':
