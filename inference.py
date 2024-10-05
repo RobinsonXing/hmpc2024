@@ -27,13 +27,13 @@ def Inference(args):
     # wandb.run.save()
 
     # 设置结果的存储路径
-    result_path = 'inference/postembedABC/'
-    result_name = 'RobinsonXing_cityD_humob_valid100users.csv'
+    result_path = 'inference/postembedABCD/'
+    result_name = 'cityD_valid_100users.csv'
     os.makedirs(result_path, exist_ok=True)
 
     # 加载验证集
     # dataset_test = TestSet(path_arr[1])
-    dataset_test = ValidationSet(path_arr[1], is_100val=True)
+    dataset_test = ValidationSet(path_arr[3], is_100val=True)
     dataloader_test = DataLoader(dataset_test, batch_size=1, num_workers=args.num_workers)
 
     # 通过cuda:<device_id>指定使用的GPU
@@ -79,7 +79,16 @@ def Inference(args):
                 pred.append(torch.argmax(output[step], dim=-1))
                 pre_x, pre_y = pred[-1][0].item(), pred[-1][1].item()
             
-            origin = torch.cat(())
+            # 
+            origin_mask = (data['input_x'] >= 1) & (data['input_x'] <= 200)
+            origin = torch.cat((
+                data['uid'][origin_mask].unsqueeze(-1),
+                data['d'][origin_mask].unsqueeze(-1)-1, 
+                data['t'][origin_mask].unsqueeze(-1)-1, 
+                data['input_x'][origin_mask].unsqueeze(-1),
+                data['input_y'][origin_mask].unsqueeze(-1)),
+                dim=-1).cpu().tolist()
+            origin = [tuple(x) for x in origin]
 
             # 生成预测结果
             pred = torch.stack(pred)
@@ -91,6 +100,7 @@ def Inference(args):
             generated = [tuple(x) for x in generated]
             
             # 添加到结果列表
+            results.extend(origin)
             results.extend(generated)
     
     end_time = time.time()
